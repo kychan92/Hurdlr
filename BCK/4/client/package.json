@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "watch" : "webpack -w js/main.js dist/bundle.js"
+  }
+}
