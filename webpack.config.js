@@ -17,7 +17,7 @@ module.exports = {
     target : 'node',
     output : {
         path     : __dirname,
-        filename : 'compiled.js'
+        filename : 'bundle.js'
     },
     externals : nodeModules
 }
