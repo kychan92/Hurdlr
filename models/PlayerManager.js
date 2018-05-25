@@ -17,7 +17,7 @@ export class PlayerManager
         this.hasChanged = false;
         this.players.forEach((x, i) => {
             x.tick(this.floor);
-            x.score += this.players.length - 1;
+            x.score++;
 
             x.applyGravity(this.floor);
             x.updateAngle(this.floor);

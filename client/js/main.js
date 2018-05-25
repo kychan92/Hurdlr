@@ -32,7 +32,6 @@ window.addEventListener('resize', () => {
 
 let name = nameGenerator.get();
 let connect = () => {
-
     socket.join(name, () => {
         new MessageBox(nameGenerator, socket.io);
     
