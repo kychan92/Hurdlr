@@ -9,7 +9,7 @@
   "devDependencies": {},
   "scripts": {
     "build" : "webpack --config webpack.config.js",
-    "start" : "node bundle.js",
+    "start" : "npm run build && node bundle.js",
     "watch" : "nodemon bundle.js",
     "test"  : "echo \"Error: no test specified\" && exit 1"
   },
