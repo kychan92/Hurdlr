@@ -1,29 +1,46 @@
 import { CanvasHelper } from "./models/CanvasHelper";
 import { Background } from "./models/ambient/Background";
 import { Floor } from "./models/Floor";
-import { User } from "./models/User";
-import { UserController } from "./controllers/UserController";
+import { Controller } from "./controllers/Controller";
 import { Music } from "./models/ambient/Music";
 import { Socket } from "./models/server/Socket";
 import { ServerHandler } from "./models/server/ServerHandler";
-import { CameraController } from "./controllers/CameraController";
+import { UserRenderer } from "./models/utils/UserRenderer";
+import { MessageBox } from "./models/server/Messagebox";
+import { NameGenerator } from "./models/NameGenerator";
 
 new Music();
 
-let identifier = 'player' + Math.floor(Math.random() * 100000).toString(16);
-
-let canvasHelper = new CanvasHelper();
-let floor        = new Floor();
-let user         = new User(floor.floorGenerator);
-let socket       = new Socket(new ServerHandler(canvasHelper, floor.floorGenerator, identifier, user));
-
-user.setController(new UserController(user, socket));
-user.setCamera(new CameraController(user, socket, floor));
+let nameGenerator = new NameGenerator();
+let canvasHelper  = new CanvasHelper();
+let floor         = new Floor();
+let userRenderer  = new UserRenderer();
+let socket        = new Socket(new ServerHandler(canvasHelper, userRenderer, floor.floorGenerator, nameGenerator));
+socket.setController(new Controller());
 
 canvasHelper.add(new Background());
 canvasHelper.add(floor);
-canvasHelper.add(user);
+canvasHelper.add(userRenderer);
 
-socket.join(user, () => {
-    canvasHelper.render();
+window.addEventListener('resize', () => {
+    canvasHelper.canvas.width  = window.innerWidth;
+    canvasHelper.canvas.height = window.innerHeight;
 });
+
+let name          = nameGenerator.get();
+
+let connect = () => {
+
+    socket.join(name, () => {
+        new MessageBox(nameGenerator, socket.io);
+    
+        canvasHelper.render();
+    }, () => {
+        console.error(`Failed to connect with ${name}`);
+
+        nameGenerator.generateName();
+        name = nameGenerator.name;
+        connect();
+    });
+}
+connect();

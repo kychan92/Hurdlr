@@ -13,20 +13,14 @@ export class CanvasHelper
         this.canvas.width  = window.innerWidth;
         this.canvas.height = window.innerHeight;
 
-        this.palette       = new Palette();
-        this.COLOR         = this.palette.next();
+        this.palette = new Palette();
+        this.COLOR   = this.palette.next();
+
+        document.body.appendChild(this.canvas);
+
         this.paletteTicker = new TickHelper(10000, () => {
             this.COLOR = this.palette.next();
         });
-
-        document.body.appendChild(this.canvas);
-        window.addEventListener('resize', () => this.onResize());
-    }
-
-    onResize()
-    {
-        this.canvas.width  = window.innerWidth;
-        this.canvas.height = window.innerHeight;
     }
 
     add(item)

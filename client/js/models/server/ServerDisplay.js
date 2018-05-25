@@ -1,30 +1,35 @@
 export class ServerDisplay
 {
-    constructor(identifier)
+    constructor()
     {
-        this.identifier = identifier;
-
-        this.container = document.createElement('div');
+        this.container    = document.createElement('div');
         this.container.id = 'server-display';
 
         document.body.appendChild(this.container);
     }
 
-    getTop5(list)
+    getTop5(list, identifier)
     {
         let top5 = document.createElement('div');
         top5.className = 'top5';
 
         if (list.length > 0)
         {
-            top5.innerHTML = '<strong>top 5</strong>';
+            top5.innerHTML = '<div class="title">top 5</div>';
 
             list.forEach(x => {
-                top5.innerHTML += `<span>${x}</span>`;
+                top5.innerHTML += this.drawItem(x, identifier);
             });
         }
 
         return top5;
+    }
+
+    drawItem(item, name)
+    {
+        let ownerClass = (item.name == name) ? 'owner' : '';
+
+        return `<div class="item ${ownerClass}"><span class="name">${item.name}</span><span class="score">${item.score}</span></div>`;
     }
 
     getUptime(time)
@@ -36,15 +41,16 @@ export class ServerDisplay
         return uptime;
     }
 
-    getPlayers(list)
+    getPlayers(list, name)
     {
         let players = document.createElement('div');
         players.className = 'players';
+        players.innerHTML += '<div class="title">Players</div>';
 
         list.forEach(x => {
             if (x.name)
             {
-                players.innerHTML += (x.name == this.identifier) ? `<span><strong>${x.name}</strong></span>` : `<span>${x.name}</span>`;
+                players.innerHTML += this.drawItem(x, name);
             }
             else
             {
@@ -55,12 +61,12 @@ export class ServerDisplay
         return players;
     }
 
-    update(object)
+    update(object, name)
     {
         this.container.innerHTML = '';
 
         this.container.appendChild(this.getUptime(object.uptime));
-        this.container.appendChild(this.getTop5(object.top5));
-        this.container.appendChild(this.getPlayers(object.players));
+        this.container.appendChild(this.getTop5(object.top5, name));
+        this.container.appendChild(this.getPlayers(object.players, name));
     }
 }

@@ -8,7 +8,10 @@
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build" : "webpack --config webpack.config.js",
+    "start" : "node compiled.js",
+    "watch" : "nodemon compiled.js",
+    "test"  : "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC"

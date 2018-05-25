@@ -60,11 +60,39 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 5);
+/******/ 	return __webpack_require__(__webpack_require__.s = 3);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+class TickHelper
+{
+    constructor(maxTicks, callback)
+    {
+        this.ticks    = 0;
+        this.maxTicks = maxTicks;
+        this.callback = callback;
+    }
+
+    tick()
+    {
+        this.ticks++;
+
+        if (this.ticks > this.maxTicks)
+        {
+            this.ticks = 0;
+            this.callback();
+        }
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = TickHelper;
+
+
+/***/ }),
+/* 1 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -112,34 +140,6 @@ class TileGenerator
 
 
 /***/ }),
-/* 1 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-class TickHelper
-{
-    constructor(maxTicks, callback)
-    {
-        this.ticks    = 0;
-        this.maxTicks = maxTicks;
-        this.callback = callback;
-    }
-
-    tick()
-    {
-        this.ticks++;
-
-        if (this.ticks > this.maxTicks)
-        {
-            this.ticks = 0;
-            this.callback();
-        }
-    }
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = TickHelper;
-
-
-/***/ }),
 /* 2 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -175,237 +175,71 @@ class TileRenderer
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils_TileCalculator__ = __webpack_require__(11);
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__models_CanvasHelper__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__models_ambient_Background__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__models_Floor__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__controllers_Controller__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__models_ambient_Music__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__models_server_Socket__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__models_server_ServerHandler__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__models_utils_UserRenderer__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__models_server_Messagebox__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__models_NameGenerator__ = __webpack_require__(17);
 
 
-const USER_WIDTH  = 30;
-const USER_HEIGHT = 30;
-const START_X     = window.innerWidth / 3;
-const START_Y     = 200;
 
-class User
-{
-    constructor(floorGenerator)
-    {
-        this.floorGenerator = floorGenerator;
-        this.tileCalculator = new __WEBPACK_IMPORTED_MODULE_0__utils_TileCalculator__["a" /* TileCalculator */](this.floorGenerator);
-        this.jumping        = false;
-        this.offset         = 0;
 
-        this.x     = START_X;
-        this.y     = START_Y;
-        this.score = 0;
-    }
 
-    onLeft()
-    {
-        if (this.jumping)
-        {
-            this.x -= 3;
-            return;
-        }
 
-        let slope = this.tileCalculator.getSlopeByWidth(this.x + this.offset);
 
-        this.x -= 3;
-        if (slope > 0) this.x-=2;
-        if (slope < 0) this.x+=1;
-    }
 
-    onRight()
-    {
-        if (this.jumping)
-        {
-            this.x += 3;
-            return;
-        }
 
-        let slope = this.tileCalculator.getSlopeByWidth(this.x + this.offset);
 
-        this.x += 3;
-        if (slope < 0) this.x+=2;
-        if (slope > 0) this.x-=1;
-    }
 
-    onJump()
-    {
-        this.y -= 15;
-    }
+new __WEBPACK_IMPORTED_MODULE_4__models_ambient_Music__["a" /* Music */]();
 
-    onGravity()
-    {
-        let minHeight = this.tileCalculator.getHeightByWidth(this.x + this.offset);
-        if (this.y - USER_HEIGHT < minHeight)
-        {
-            this.y += 8;
-        }
+let nameGenerator = new __WEBPACK_IMPORTED_MODULE_9__models_NameGenerator__["a" /* NameGenerator */]();
+let canvasHelper  = new __WEBPACK_IMPORTED_MODULE_0__models_CanvasHelper__["a" /* CanvasHelper */]();
+let floor         = new __WEBPACK_IMPORTED_MODULE_2__models_Floor__["a" /* Floor */]();
+let userRenderer  = new __WEBPACK_IMPORTED_MODULE_7__models_utils_UserRenderer__["a" /* UserRenderer */]();
+let socket        = new __WEBPACK_IMPORTED_MODULE_5__models_server_Socket__["a" /* Socket */](new __WEBPACK_IMPORTED_MODULE_6__models_server_ServerHandler__["a" /* ServerHandler */](canvasHelper, userRenderer, floor.floorGenerator, nameGenerator));
+socket.setController(new __WEBPACK_IMPORTED_MODULE_3__controllers_Controller__["a" /* Controller */]());
 
-        if (this.y >= minHeight)
-        {
-            if (this.onJumpEnd) this.onJumpEnd();
+canvasHelper.add(new __WEBPACK_IMPORTED_MODULE_1__models_ambient_Background__["a" /* Background */]());
+canvasHelper.add(floor);
+canvasHelper.add(userRenderer);
 
-            this.jumping = false;
-            this.y       = minHeight;
-        }
+window.addEventListener('resize', () => {
+    canvasHelper.canvas.width  = window.innerWidth;
+    canvasHelper.canvas.height = window.innerHeight;
+});
 
-        if (minHeight - this.y > 150)
-        {
-            this.y = minHeight - 150;
-        }
-    }
+let name          = nameGenerator.get();
 
-    renderScore(canvasHelper)
-    {
-        canvasHelper.context.fillStyle = canvasHelper.COLOR.TEXT;
-        canvasHelper.context.font      = '20px Courier';
-        canvasHelper.context.fillText(this.score, this.x - ((this.score.toString().length / 2) * 14), this.y - (USER_HEIGHT + 20));
-    }
+let connect = () => {
 
-    checkOutOfBounds(canvasHelper)
-    {
-        if (this.x > window.innerWidth) this.x = window.innerWidth;
-        if (this.x < -USER_WIDTH)
-        {
-            this.x     = START_X;
-            this.y     = START_Y;
-            this.score = 0;
-        }
-    }
+    socket.join(name, () => {
+        new __WEBPACK_IMPORTED_MODULE_8__models_server_Messagebox__["a" /* MessageBox */](nameGenerator, socket.io);
+    
+        canvasHelper.render();
+    }, () => {
+        console.error(`Failed to connect with ${name}`);
 
-    setController(controller)
-    {
-        this.controller = controller;
-    }
-
-    setCamera(camera)
-    {
-        this.camera = camera;
-    }
-
-    render(canvasHelper)
-    {
-        this.checkOutOfBounds(canvasHelper);
-        this.onGravity();
-
-        if (this.controller) this.controller.tick();
-        if (this.camera)     this.camera.tick();
-
-        this.score++;
-        canvasHelper.context.fillStyle = canvasHelper.COLOR.USER;
-
-        let dx    = this.x - USER_WIDTH/2;
-        let slope = this.tileCalculator.getSlopeByWidth(this.x + this.offset);
-        let angle = (slope * -this.floorGenerator.ANGLE) || 0;
-
-        if (!this.jumping)
-        {
-            canvasHelper.context.save();
-            canvasHelper.context.translate(this.x, this.y);
-            canvasHelper.context.rotate(angle);
-            canvasHelper.context.translate(-this.x, -this.y);
-            canvasHelper.context.fillRect(dx, this.y, USER_WIDTH, -USER_HEIGHT);
-            this.renderScore(canvasHelper);
-            canvasHelper.context.restore();
-        }
-        else
-        {
-            canvasHelper.context.fillRect(dx, this.y, USER_WIDTH, -USER_HEIGHT);
-            this.renderScore(canvasHelper);
-        }
-    }
+        nameGenerator.generateName();
+        name = nameGenerator.name;
+        connect();
+    });
 }
-/* harmony export (immutable) */ __webpack_exports__["a"] = User;
-
+connect();
 
 /***/ }),
 /* 4 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-class Tween
-{
-    constructor(tweenCommand, delay, stackable)
-    {
-        this.tweenCommand = tweenCommand;
-        this.maxTicks     = delay;
-        this.ticks        = (delay==null) ? null : 0;
-        this.stackable    = stackable;
-    }
-
-    trigger()
-    {
-        if (this.ticks == null) return;
-        if (this.ticks > 0 && !this.stackable) return;
-
-        this.ticks = this.maxTicks;
-    }
-
-    tick()
-    {
-        if (this.ticks === 0) return;
-
-        this.tweenCommand();
-        if (this.ticks == null) return;
-
-        this.ticks--;
-        if (this.ticks < 0) this.ticks = 0;
-    }
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = Tween;
-
-
-/***/ }),
-/* 5 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__models_CanvasHelper__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__models_ambient_Background__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__models_Floor__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__models_User__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__controllers_UserController__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__models_ambient_Music__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__models_server_Socket__ = __webpack_require__(14);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__models_server_ServerHandler__ = __webpack_require__(15);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__controllers_CameraController__ = __webpack_require__(17);
-
-
-
-
-
-
-
-
-
-
-new __WEBPACK_IMPORTED_MODULE_5__models_ambient_Music__["a" /* Music */]();
-
-let identifier = 'player' + Math.floor(Math.random() * 100000).toString(16);
-
-let canvasHelper = new __WEBPACK_IMPORTED_MODULE_0__models_CanvasHelper__["a" /* CanvasHelper */]();
-let floor        = new __WEBPACK_IMPORTED_MODULE_2__models_Floor__["a" /* Floor */]();
-let user         = new __WEBPACK_IMPORTED_MODULE_3__models_User__["a" /* User */](floor.floorGenerator);
-let socket       = new __WEBPACK_IMPORTED_MODULE_6__models_server_Socket__["a" /* Socket */](new __WEBPACK_IMPORTED_MODULE_7__models_server_ServerHandler__["a" /* ServerHandler */](canvasHelper, floor.floorGenerator, identifier, user));
-
-user.setController(new __WEBPACK_IMPORTED_MODULE_4__controllers_UserController__["a" /* UserController */](user, socket));
-user.setCamera(new __WEBPACK_IMPORTED_MODULE_8__controllers_CameraController__["a" /* CameraController */](user, socket, floor));
-
-canvasHelper.add(new __WEBPACK_IMPORTED_MODULE_1__models_ambient_Background__["a" /* Background */]());
-canvasHelper.add(floor);
-canvasHelper.add(user);
-
-socket.join(user, () => {
-    canvasHelper.render();
-});
-
-/***/ }),
-/* 6 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils_Palette__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_TickHelper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils_Palette__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_TickHelper__ = __webpack_require__(0);
 
 
 
@@ -421,20 +255,14 @@ class CanvasHelper
         this.canvas.width  = window.innerWidth;
         this.canvas.height = window.innerHeight;
 
-        this.palette       = new __WEBPACK_IMPORTED_MODULE_0__utils_Palette__["a" /* Palette */]();
-        this.COLOR         = this.palette.next();
+        this.palette = new __WEBPACK_IMPORTED_MODULE_0__utils_Palette__["a" /* Palette */]();
+        this.COLOR   = this.palette.next();
+
+        document.body.appendChild(this.canvas);
+
         this.paletteTicker = new __WEBPACK_IMPORTED_MODULE_1__utils_TickHelper__["a" /* TickHelper */](10000, () => {
             this.COLOR = this.palette.next();
         });
-
-        document.body.appendChild(this.canvas);
-        window.addEventListener('resize', () => this.onResize());
-    }
-
-    onResize()
-    {
-        this.canvas.width  = window.innerWidth;
-        this.canvas.height = window.innerHeight;
     }
 
     add(item)
@@ -477,7 +305,7 @@ class CanvasHelper
 
 
 /***/ }),
-/* 7 */
+/* 5 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -530,14 +358,14 @@ class Palette
 
 
 /***/ }),
-/* 8 */
+/* 6 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils_TileGenerator__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils_TileGenerator__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_TileRenderer__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Star__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__utils_TickHelper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Star__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__utils_TickHelper__ = __webpack_require__(0);
 
 
 
@@ -591,7 +419,7 @@ class Background
 
 
 /***/ }),
-/* 9 */
+/* 7 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -636,11 +464,11 @@ class Star
 
 
 /***/ }),
-/* 10 */
+/* 8 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils_TileGenerator__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils_TileGenerator__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_TileRenderer__ = __webpack_require__(2);
 
 
@@ -664,93 +492,33 @@ class Floor
 
 
 /***/ }),
-/* 11 */
+/* 9 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__TileGenerator__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__models_utils_Tween__ = __webpack_require__(10);
 
 
-class TileCalculator
+class Controller
 {
-    constructor(tileGenerator)
+    constructor()
     {
-        this.tileGenerator = tileGenerator;
-    }
-
-    getHeightByWidth(width)
-    {
-        let index = this.getTileIndexByWidth(width);
-        let rw    = index * this.tileGenerator.BLOCK_WIDTH;
-        let rh    = this.getTile(index) * this.tileGenerator.BLOCK_HEIGHT;
-        let dx    = width - rw;
-
-        let remainder = dx * (this.tileGenerator.BLOCK_HEIGHT / this.tileGenerator.BLOCK_WIDTH);
-        let slope     = this.getSlopeByWidth(width) * remainder || 0;
-
-        let height = rh + slope;
-
-        return window.innerHeight - height;
-    }
-
-    getTileIndexByWidth(width)
-    {
-        return Math.floor(width / this.tileGenerator.BLOCK_WIDTH);
-    }
-
-    getTile(tileIndex)
-    {
-        return this.tileGenerator.tiles[tileIndex];
-    }
-
-    getSlopeByWidth(width)
-    {
-        let tileIndex = this.getTileIndexByWidth(width);
-
-        let height     = this.getTile(tileIndex);
-        let nextHeight = this.getTile(tileIndex + 1) || height;
-
-        return nextHeight - height;
-    }
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = TileCalculator;
-
-
-/***/ }),
-/* 12 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__models_utils_Tween__ = __webpack_require__(4);
-
-
-class UserController
-{
-    constructor(user, socket)
-    {
-        this.user   = user;
-        this.socket = socket;
-
-        this.keys   = [];
-        this.tweens = [
-            new __WEBPACK_IMPORTED_MODULE_0__models_utils_Tween__["a" /* Tween */](() => this.user.onLeft(),  15, true),
-            new __WEBPACK_IMPORTED_MODULE_0__models_utils_Tween__["a" /* Tween */](() => this.user.onRight(), 15, true),
-            new __WEBPACK_IMPORTED_MODULE_0__models_utils_Tween__["a" /* Tween */](() => this.user.onJump(),  25, false)
-        ];
+        this.keys = [];
 
         document.body.addEventListener('keydown', (event) => this.onKey(true,  event));
         document.body.addEventListener('keyup',   (event) => this.onKey(false, event));
 
-        this.addKey(37, () => this.tweens[0].trigger());
-        this.addKey(39, () => this.tweens[1].trigger());
-        this.addKey(38, () => {
-            if (this.user.jumping) return;
+        this.addKey(37, () => this.onKeyLeft());
+        this.addKey(39, () => this.onKeyRight());
+        this.addKey(38, () => this.onKeyUp());
+    }
 
-            this.tweens[2].trigger();
-            this.user.jumping = true;
+    addKey(key)
+    {
+        this.keys.push({
+            key,
+            activated : false
         });
-
-        this.user.onJumpEnd = () => this.onJumpEnd();
     }
 
     onKey(down, event)
@@ -758,43 +526,59 @@ class UserController
         this.keys.forEach(x => {
             if (x.key == event.keyCode)
             {
-                x.activated = down;
+                if (x.activated != down)
+                {
+                    x.activated = down;
+                    this.socket.sendAction(x);
+                }
+
+                return true;
             }
         });
     }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = Controller;
 
-    onJumpEnd()
+
+/***/ }),
+/* 10 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+class Tween
+{
+    constructor(tweenCommand, delay, stackable)
     {
-        this.socket.update(this.user);
+        this.tweenCommand = tweenCommand;
+        this.maxTicks     = delay;
+        this.ticks        = (delay==null) ? null : 0;
+        this.stackable    = stackable;
     }
 
-    addKey(key, event)
+    trigger()
     {
-        this.keys.push({
-            key,
-            activated : false,
-            event
-        });
+        if (this.ticks == null) return;
+        if (this.ticks > 0 && !this.stackable) return;
+
+        this.ticks = this.maxTicks;
     }
 
     tick()
     {
-        this.keys.forEach(x => {
-            if (x.activated)
-            {
-                x.event();
-                this.socket.update(this.user);
-            }
-        });
+        if (this.ticks === 0) return;
 
-        this.tweens.forEach(x => x.tick());
+        this.tweenCommand();
+        if (this.ticks == null) return;
+
+        this.ticks--;
+        if (this.ticks < 0) this.ticks = 0;
     }
 }
-/* harmony export (immutable) */ __webpack_exports__["a"] = UserController;
+/* unused harmony export Tween */
 
 
 /***/ }),
-/* 13 */
+/* 11 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -819,7 +603,7 @@ class Music
 
 
 /***/ }),
-/* 14 */
+/* 12 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -827,165 +611,117 @@ class Socket
 {
     constructor(handler)
     {
-        this.io  = io('http://localhost:8080');
-
         this.handler = handler;
-        this.io.on('update', data => this.handler.onUpdate(data));
-        this.io.on('tile',   data => this.handler.onNewTile(data));
+
+        this.io = io('http://localhost:8080');
+        this.io.on('update',  data => this.handler.onUpdate(this.io, data));
     }
 
-    join(user, callback)
+    setController(controller)
     {
-        this.io.on('handshake', data => {
-            this.handler.onHandshake(data);
+        this.controller        = controller;
+        this.controller.socket = this;
+    }
 
-            callback();
+    join(name, successCallback, failedCallback)
+    {
+        this.io.on('handshake', (data) => {
+            if (data.result)
+            {
+                this.handler.onHandshake(this.io, data);
+                successCallback();
+            }
+            else
+            {
+                failedCallback();
+            }
         });
 
         this.io.emit('join', {
-            name : this.handler.identifier,
-            user : {
-                x       : user.x,
-                y       : user.y,
-                jumping : user.jumping,
-                score   : user.score
-            }
+            name : name
         });
     }
 
-    update(user)
+    sendAction(action)
     {
-        this.io.emit('update', {
-            x       : user.x,
-            y       : user.y,
-            jumping : user.jumping,
-            score   : user.score
-        });
+        this.io.emit('action', action);
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Socket;
 
 
 /***/ }),
-/* 15 */
+/* 13 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ServerDisplay__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__User__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__utils_Tween__ = __webpack_require__(4);
-
-
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ServerDisplay__ = __webpack_require__(14);
 
 
 class ServerHandler
 {
-    constructor(canvasHelper, floorGenerator, identifier, user)
+    constructor(canvasHelper, userRenderer, floorGenerator, nameGenerator)
     {
-        this.identifier     = identifier;
         this.canvasHelper   = canvasHelper;
-        this.serverDisplay  = new __WEBPACK_IMPORTED_MODULE_0__ServerDisplay__["a" /* ServerDisplay */](this.identifier);
+        this.userRenderer   = userRenderer;
         this.floorGenerator = floorGenerator;
-        this.localPlayers   = [];
-        this.user           = user;
+        this.nameGenerator  = nameGenerator;
+        this.serverDisplay  = new __WEBPACK_IMPORTED_MODULE_0__ServerDisplay__["a" /* ServerDisplay */]();
     }
 
-    onNewTile(data)
+    onUpdate(socket, data)
     {
-        this.floorGenerator.tiles.push(data.tile);
+        this.floorGenerator.tiles  = data.floors;
+        this.floorGenerator.offset = data.floorOffset;
+        this.serverDisplay.update(data, this.nameGenerator.name);
+        this.userRenderer.update(data.players);
     }
 
-    onUpdate(data)
+    onHandshake(socket, data)
     {
-        this.serverDisplay.update(data);
-
-        data.players.forEach(player => {
-            if (!player.name) return;
-            if (player.name == this.identifier) return;
-
-            let localPlayer = this.localPlayers.find(x => x.name == player.name);
-            if (!localPlayer)
-            {
-                localPlayer = {
-                    name : player.name,
-                    user : new __WEBPACK_IMPORTED_MODULE_1__User__["a" /* User */](this.floorGenerator)
-                };
-                this.localPlayers.push(localPlayer);
-                this.canvasHelper.add(localPlayer.user);
-            }
-
-            if (!localPlayer.user.jumping && player.user.jumping)
-            {
-                localPlayer.user.jumping = true;
-            }
-
-            if (localPlayer.user.jumping && !player.user.jumping)
-            {
-                localPlayer.user.jumping = false;
-            }
-
-            if (localPlayer.user.jumping)
-            {
-                localPlayer.user.y -= 6;
-            }
-
-            localPlayer.user.x       = player.user.x;
-            localPlayer.user.score   = player.user.score;
-        });
-
-        this.localPlayers.forEach((player, playerIndex) => {
-            if (!player.name) return;
-            if (player.name == this.identifier) return;
-
-            let index = data.players.findIndex(x => x.name == player.name);
-            if (index === -1)
-            {
-                this.canvasHelper.remove(player.user);
-                this.localPlayers.splice(playerIndex, 1);
-            }
-        });
-    }
-
-    onHandshake(data)
-    {
-        this.floorGenerator.tiles = data.floors;
+        this.nameGenerator.save(data.name);
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = ServerHandler;
 
 
 /***/ }),
-/* 16 */
+/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 class ServerDisplay
 {
-    constructor(identifier)
+    constructor()
     {
-        this.identifier = identifier;
-
-        this.container = document.createElement('div');
+        this.container    = document.createElement('div');
         this.container.id = 'server-display';
 
         document.body.appendChild(this.container);
     }
 
-    getTop5(list)
+    getTop5(list, identifier)
     {
         let top5 = document.createElement('div');
         top5.className = 'top5';
 
         if (list.length > 0)
         {
-            top5.innerHTML = '<strong>top 5</strong>';
+            top5.innerHTML = '<div class="title">top 5</div>';
 
             list.forEach(x => {
-                top5.innerHTML += `<span>${x}</span>`;
+                top5.innerHTML += this.drawItem(x, identifier);
             });
         }
 
         return top5;
+    }
+
+    drawItem(item, name)
+    {
+        let ownerClass = (item.name == name) ? 'owner' : '';
+
+        return `<div class="item ${ownerClass}"><span class="name">${item.name}</span><span class="score">${item.score}</span></div>`;
     }
 
     getUptime(time)
@@ -997,15 +733,16 @@ class ServerDisplay
         return uptime;
     }
 
-    getPlayers(list)
+    getPlayers(list, name)
     {
         let players = document.createElement('div');
         players.className = 'players';
+        players.innerHTML += '<div class="title">Players</div>';
 
         list.forEach(x => {
             if (x.name)
             {
-                players.innerHTML += (x.name == this.identifier) ? `<span><strong>${x.name}</strong></span>` : `<span>${x.name}</span>`;
+                players.innerHTML += this.drawItem(x, name);
             }
             else
             {
@@ -1016,16 +753,132 @@ class ServerDisplay
         return players;
     }
 
-    update(object)
+    update(object, name)
     {
         this.container.innerHTML = '';
 
         this.container.appendChild(this.getUptime(object.uptime));
-        this.container.appendChild(this.getTop5(object.top5));
-        this.container.appendChild(this.getPlayers(object.players));
+        this.container.appendChild(this.getTop5(object.top5, name));
+        this.container.appendChild(this.getPlayers(object.players, name));
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = ServerDisplay;
+
+
+/***/ }),
+/* 15 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+const USER_WIDTH  = 30;
+const USER_HEIGHT = 30;
+
+class UserRenderer
+{
+    constructor()
+    {
+        this.players = [];
+    }
+
+    update(players)
+    {
+        this.players = players;
+    }
+
+    renderScore(canvasHelper, player)
+    {
+        canvasHelper.context.fillStyle = canvasHelper.COLOR.TEXT;
+        canvasHelper.context.fillText(player.score,
+                                      player.position.x - ((player.score.toString().length / 2) * 14),
+                                      (window.innerHeight - player.position.y) - (USER_HEIGHT + 20));
+    }
+
+    render(canvasHelper)
+    {
+        this.players.forEach(player => {
+            let dx = player.position.x - USER_WIDTH/2;
+            let dy = window.innerHeight - player.position.y;
+
+            canvasHelper.context.fillStyle = canvasHelper.COLOR.USER;
+            canvasHelper.context.font      = '20px Courier';
+            if (player.angle && !player.isJumping)
+            {
+                canvasHelper.context.save();
+                canvasHelper.context.translate(player.position.x, dy);
+                canvasHelper.context.rotate(-player.angle);
+                canvasHelper.context.translate(-player.position.x, -dy);
+                canvasHelper.context.fillRect(dx, dy, USER_WIDTH, -USER_HEIGHT);
+                this.renderScore(canvasHelper, player);
+                canvasHelper.context.restore();
+            }
+            else
+            {
+                canvasHelper.context.fillRect(dx, dy, USER_WIDTH, -USER_HEIGHT);
+                this.renderScore(canvasHelper, player);
+            }
+        });
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = UserRenderer;
+
+
+/***/ }),
+/* 16 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+class MessageBox
+{
+    constructor(nameGenerator, io)
+    {
+        this.nameGenerator = nameGenerator;
+        this.name          = name;
+        this.io            = io;
+        this.container     = document.createElement('div');
+        this.container.id  = 'message-container';
+
+        this.messageBox    = document.createElement('div');
+        this.messageBox.id = 'message-box';
+
+        this.inputField = document.createElement('input');
+        this.inputField.setAttribute('type', 'text');
+
+        document.body.appendChild(this.container);
+        this.container.appendChild(this.messageBox);
+        this.container.appendChild(this.inputField);
+
+        this.inputField.addEventListener('keydown', (event) => this.onKey(event));
+
+        this.io.on('message', (data) => this.addMessage(this.nameGenerator.name, data.message));
+
+        this.addWelcomeMessage();
+    }
+
+    addMessage(name, message)
+    {
+        this.messageBox.innerHTML += `<div class="item"><span class="name">${name}</span>: ${message}</div>`;
+        this.messageBox.scrollTo(0, this.messageBox.scrollHeight);
+    }
+
+    addWelcomeMessage()
+    {
+        this.messageBox.innerHTML += '<div class="item-break-word">Welcome visitor! Outplay your enemies by sliding faster and beat them. Change name with /name in chat.</div>';
+    }
+
+    onKey(event)
+    {
+        if (event.keyCode == 13)
+        {
+            this.io.emit('message', {
+                name    : this.nameGenerator.name,
+                message : this.inputField.value
+            });
+
+            this.inputField.value = '';
+        }
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = MessageBox;
 
 
 /***/ }),
@@ -1033,40 +886,50 @@ class ServerDisplay
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-const TRIGGER_DISTANCE = 600;
-
-class CameraController
+class NameGenerator
 {
-    constructor(user, socket, floor)
+    constructor()
     {
-        this.user   = user;
-        this.socket = socket;
-        this.floor  = floor;
+        this.generateName();
     }
 
-    checkForNewTiles()
+    get()
     {
-        if (this.user.x > TRIGGER_DISTANCE)
+        if (localStorage)
         {
-            let offset = this.user.x - TRIGGER_DISTANCE;
+            let name = localStorage.getItem('name');
+            if (name)
+            {
+                this.name = name;
+                return name;
+            }
 
-            this.user.x = TRIGGER_DISTANCE;
+            this.save(this.name);
 
-            this.user.offset                 += offset;
-            this.floor.floorGenerator.offset += offset;
-
-            this.socket.io.emit('tile', {
-                offset : offset
-            });
+            return this.name;
         }
+
+        return this.name;
     }
 
-    tick()
+    save(name)
     {
-        this.checkForNewTiles();
+        if (localStorage)
+        {
+            localStorage.setItem('name', name);
+        }
+
+        this.name = name;
+    }
+
+    generateName()
+    {
+        this.name = 'player' + Math.floor(Math.random() * 100000).toString(16);
+
+        return name;
     }
 }
-/* harmony export (immutable) */ __webpack_exports__["a"] = CameraController;
+/* harmony export (immutable) */ __webpack_exports__["a"] = NameGenerator;
 
 
 /***/ })

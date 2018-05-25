@@ -1,13 +1,9 @@
 html, body
 {
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
-}
-
-canvas
-{
+    margin      : 0;
+    padding     : 0;
+    overflow    : hidden;
+    font-family : Verdana, Geneva, Tahoma, sans-serif;
 }
 
 #server-display
@@ -36,14 +32,95 @@ canvas
     font-size : 10px;
 }
 
-#server-display > .top5
+#server-display > * > .title
 {
+    font-weight    : bold;
     text-transform : uppercase;
-    font-size      : 10px;
-    margin-bottom  : 20px;
+    font-size      : 12px;
 }
 
-#server-display > div > span
+#server-display > * > .item > .name
+{
+    text-align : left;
+    display    : inline-block;
+    width      : 50%;
+}
+
+#server-display > * > .item > .score
+{
+    text-align : right;
+    display    : inline-block;
+    width      : 50%;
+    font-style : italic;
+}
+
+#server-display > .players > span
 {
     display: block;
+}
+
+#server-display > .players > .item.owner
+{
+    color : darkred;
+}
+
+#server-display > .top5 > .item.owner
+{
+    color : darkgreen;
+}
+
+#message-container
+{
+    position   : absolute;
+    top        : 0;
+    bottom     : 0;
+    right      : 0;
+    width      : 300px;
+    font-size  : 11px;
+    opacity    : 0.7;
+    box-shadow: -1px 0px 10px 1px rgba(255, 255, 255, 0.24);
+}
+
+#message-box
+{
+    position   : absolute;
+    top        : 0;
+    bottom     : 25px;
+    right      : 0;
+    width      : 300px;
+    opacity    : 0.6;
+    background : #FFF;
+    overflow-y : scroll;
+}
+
+#message-box > .item > span.name
+{
+    font-weight : bold;
+}
+
+#message-box > .item
+{
+    word-break : break-all;
+    margin     : 10px;
+}
+
+#message-box > .item-break-word
+{
+    word-break : break-word;
+    margin     : 10px;
+}
+
+#message-container > input
+{
+    position         : absolute;
+    bottom           : 0;
+    right            : 0;
+    outline          : none;
+    width            : 290px;
+    border           : 0;
+    background-color : #9999FF;
+    caret-color      : #FFF;
+    color            : #FFF;
+    height           : 25px;
+    padding-left     : 10px;
 }

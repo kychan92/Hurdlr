@@ -2,39 +2,39 @@ export class Socket
 {
     constructor(handler)
     {
-        this.io  = io('http://localhost:8080');
-
         this.handler = handler;
-        this.io.on('update', data => this.handler.onUpdate(data));
-        this.io.on('tile',   data => this.handler.onNewTile(data));
+
+        this.io = io('http://localhost:8080');
+        this.io.on('update',  data => this.handler.onUpdate(this.io, data));
     }
 
-    join(user, callback)
+    setController(controller)
     {
-        this.io.on('handshake', data => {
-            this.handler.onHandshake(data);
+        this.controller        = controller;
+        this.controller.socket = this;
+    }
 
-            callback();
+    join(name, successCallback, failedCallback)
+    {
+        this.io.on('handshake', (data) => {
+            if (data.result)
+            {
+                this.handler.onHandshake(this.io, data);
+                successCallback();
+            }
+            else
+            {
+                failedCallback();
+            }
         });
 
         this.io.emit('join', {
-            name : this.handler.identifier,
-            user : {
-                x       : user.x,
-                y       : user.y,
-                jumping : user.jumping,
-                score   : user.score
-            }
+            name : name
         });
     }
 
-    update(user)
+    sendAction(action)
     {
-        this.io.emit('update', {
-            x       : user.x,
-            y       : user.y,
-            jumping : user.jumping,
-            score   : user.score
-        });
+        this.io.emit('action', action);
     }
 }
