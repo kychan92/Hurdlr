@@ -4,7 +4,7 @@ export class Socket
     {
         this.handler = handler;
 
-        this.io = io('http://localhost:8080');
+        this.io = io('http://localhost:8000');
         this.io.on('update',  data => this.handler.onUpdate(this.io, data));
     }
 

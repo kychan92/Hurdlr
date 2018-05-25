@@ -183,7 +183,7 @@ let tickHandler   = new __WEBPACK_IMPORTED_MODULE_7__models_TickHandler__["a" /*
     }
 });
 
-server.listen(8080);
+server.listen(8000);
 
 /***/ }),
 /* 3 */
