@@ -183,7 +183,8 @@ let tickHandler   = new __WEBPACK_IMPORTED_MODULE_7__models_TickHandler__["a" /*
     }
 });
 
-server.listen(8000);
+server.listen(process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080,
+              process.env.IP   || process.env.OPENSHIFT_NODEJS_IP   || '0.0.0.0');
 
 /***/ }),
 /* 3 */

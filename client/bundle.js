@@ -612,7 +612,7 @@ class Socket
     {
         this.handler = handler;
 
-        this.io = io('http://localhost:8000');
+        this.io = io((window.location.href.indexOf('localhost') !== -1) ? 'http://localhost:8080' : 'http://hurdlr-hurdlr.a3c1.starter-us-west-1.openshiftapps.com');
         this.io.on('update',  data => this.handler.onUpdate(this.io, data));
     }
 

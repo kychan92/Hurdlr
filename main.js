@@ -24,4 +24,5 @@ let tickHandler   = new TickHandler(() => {
     }
 });
 
-server.listen(8000);
+server.listen(process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080,
+              process.env.IP   || process.env.OPENSHIFT_NODEJS_IP   || '0.0.0.0');
