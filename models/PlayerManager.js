@@ -17,6 +17,7 @@ export class PlayerManager
         this.hasChanged = false;
         this.players.forEach((x, i) => {
             x.tick(this.floor);
+            x.score += this.players.length - 1;
 
             x.applyGravity(this.floor);
             x.updateAngle(this.floor);
@@ -28,7 +29,7 @@ export class PlayerManager
                 this.players.forEach(y => y.position.x -= offset);
                 this.floor.setOffset(offset);
 
-                x.score += 10;
+                x.score += this.players.length - 1;
             }
 
             if (x.isOutOfBounds())

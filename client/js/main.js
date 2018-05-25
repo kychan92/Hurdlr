@@ -8,17 +8,20 @@ import { ServerHandler } from "./models/server/ServerHandler";
 import { UserRenderer } from "./models/utils/UserRenderer";
 import { MessageBox } from "./models/server/Messagebox";
 import { NameGenerator } from "./models/NameGenerator";
+import { FullScreen } from "./models/ambient/FullScreen";
 
 new Music();
+new FullScreen();
 
 let nameGenerator = new NameGenerator();
 let canvasHelper  = new CanvasHelper();
+let background    = new Background();
 let floor         = new Floor();
 let userRenderer  = new UserRenderer();
-let socket        = new Socket(new ServerHandler(canvasHelper, userRenderer, floor.floorGenerator, nameGenerator));
+let socket        = new Socket(new ServerHandler(canvasHelper, userRenderer, floor.floorGenerator, nameGenerator, background));
 socket.setController(new Controller());
 
-canvasHelper.add(new Background());
+canvasHelper.add(background);
 canvasHelper.add(floor);
 canvasHelper.add(userRenderer);
 
@@ -27,8 +30,7 @@ window.addEventListener('resize', () => {
     canvasHelper.canvas.height = window.innerHeight;
 });
 
-let name          = nameGenerator.get();
-
+let name = nameGenerator.get();
 let connect = () => {
 
     socket.join(name, () => {

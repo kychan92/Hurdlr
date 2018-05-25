@@ -8,9 +8,10 @@ export class Floor
         this.blockHeight    = 30;
         this.maxBlocks      = 100;
         this.minBlockHeight = 2;
-        this.maxBlockHeight = 8;
+        this.maxBlockHeight = 9;
         this.angle          = Math.atan2(this.blockHeight, this.blockWidth);
         this.offset         = 0;
+        this.updated        = false;
         this.calculator     = new FloorCalculator(this);
         this.locations      = [this.minBlockHeight];
 
@@ -28,6 +29,7 @@ export class Floor
         {
             this.offset -= this.blockWidth;
             this.next();
+            this.updated = true;
         }
     }
 

@@ -4,6 +4,6 @@ export class TickHandler
     {
         this.callback = callback;
 
-        setInterval(() => this.callback(), 10);
+        setInterval(() => this.callback(), 15);
     }
 }

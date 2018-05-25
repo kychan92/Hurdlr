@@ -8,10 +8,11 @@ export class Music
         this.audio.setAttribute('preload',  'auto');
         this.audio.setAttribute('controls', 'none');
         this.audio.setAttribute('loop',     'none');
+        this.audio.volume = 0.03;
         this.audio.style.display = 'none';
 
         document.body.appendChild(this.audio);
 
-        //this.audio.play();
+        this.audio.play();
     }
 }

@@ -7,14 +7,11 @@ export class Background
 {
     constructor()
     {
-        this.tileGenerator = new TileGenerator(200, 80, 50, 4, 9);
+        this.tileGenerator = new TileGenerator(150, 80, 50, 4, 9);
         this.tileGenerator.populate();
 
         this.backgroundRenderer = new TileRenderer(this.tileGenerator);
         this.stars  = [];
-        this.tileTicker = new TickHelper(80, () => {
-            this.tileGenerator.next();
-        });
 
         this.starTicker = new TickHelper(25, () => {
             this.stars.push(new Star());
@@ -37,7 +34,6 @@ export class Background
 
     render(canvasHelper)
     {
-        this.tileTicker.tick();
         this.starTicker.tick();
 
         canvasHelper.context.fillStyle = canvasHelper.COLOR.STARS;

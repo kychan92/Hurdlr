@@ -4,9 +4,9 @@ const LEFT  = 37;
 const UP    = 38;
 const RIGHT = 39;
 
-const HILL_SPEED    = 2;
-const SPEED         = 4;
-const RAMP_SPEED    = 8;
+const HILL_SPEED    = 3;
+const SPEED         = 5;
+const RAMP_SPEED    = 12;
 
 const MAX_SPEED     = 50;
 const JUMP_SPEED    = 20;
@@ -58,8 +58,6 @@ export class User
 
     tick(floor)
     {
-        this.score++;
-
         if (this.movements.left)
         {
             let slope = floor.calculator.getSlopeByOffset(this.position.x);

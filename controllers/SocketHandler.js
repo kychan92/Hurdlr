@@ -58,11 +58,14 @@ export class SocketHandler
         this.playerManager.scoreHandler.update(this.playerManager.players);
 
         io.emit('update', {
-            uptime      : process.env.UPTIME,
-            top5        : this.playerManager.scoreHandler.getTop5(),
-            floors      : this.floor.locations,
-            floorOffset : this.floor.offset,
-            players     : this.playerManager.players
+            uptime       : process.env.UPTIME,
+            top5         : this.playerManager.scoreHandler.getTop5(),
+            floors       : this.floor.locations,
+            floorOffset  : this.floor.offset,
+            floorUpdated : this.floor.updated,
+            players      : this.playerManager.players
         });
+
+        this.floor.updated = false;
     }
 }

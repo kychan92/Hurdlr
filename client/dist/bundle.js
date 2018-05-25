@@ -186,6 +186,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__models_utils_UserRenderer__ = __webpack_require__(15);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__models_server_Messagebox__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__models_NameGenerator__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__models_ambient_FullScreen__ = __webpack_require__(19);
+
 
 
 
@@ -198,15 +200,17 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 new __WEBPACK_IMPORTED_MODULE_4__models_ambient_Music__["a" /* Music */]();
+new __WEBPACK_IMPORTED_MODULE_10__models_ambient_FullScreen__["a" /* FullScreen */]();
 
 let nameGenerator = new __WEBPACK_IMPORTED_MODULE_9__models_NameGenerator__["a" /* NameGenerator */]();
 let canvasHelper  = new __WEBPACK_IMPORTED_MODULE_0__models_CanvasHelper__["a" /* CanvasHelper */]();
+let background    = new __WEBPACK_IMPORTED_MODULE_1__models_ambient_Background__["a" /* Background */]();
 let floor         = new __WEBPACK_IMPORTED_MODULE_2__models_Floor__["a" /* Floor */]();
 let userRenderer  = new __WEBPACK_IMPORTED_MODULE_7__models_utils_UserRenderer__["a" /* UserRenderer */]();
-let socket        = new __WEBPACK_IMPORTED_MODULE_5__models_server_Socket__["a" /* Socket */](new __WEBPACK_IMPORTED_MODULE_6__models_server_ServerHandler__["a" /* ServerHandler */](canvasHelper, userRenderer, floor.floorGenerator, nameGenerator));
+let socket        = new __WEBPACK_IMPORTED_MODULE_5__models_server_Socket__["a" /* Socket */](new __WEBPACK_IMPORTED_MODULE_6__models_server_ServerHandler__["a" /* ServerHandler */](canvasHelper, userRenderer, floor.floorGenerator, nameGenerator, background));
 socket.setController(new __WEBPACK_IMPORTED_MODULE_3__controllers_Controller__["a" /* Controller */]());
 
-canvasHelper.add(new __WEBPACK_IMPORTED_MODULE_1__models_ambient_Background__["a" /* Background */]());
+canvasHelper.add(background);
 canvasHelper.add(floor);
 canvasHelper.add(userRenderer);
 
@@ -215,8 +219,7 @@ window.addEventListener('resize', () => {
     canvasHelper.canvas.height = window.innerHeight;
 });
 
-let name          = nameGenerator.get();
-
+let name = nameGenerator.get();
 let connect = () => {
 
     socket.join(name, () => {
@@ -375,14 +378,11 @@ class Background
 {
     constructor()
     {
-        this.tileGenerator = new __WEBPACK_IMPORTED_MODULE_0__utils_TileGenerator__["a" /* TileGenerator */](200, 80, 50, 4, 9);
+        this.tileGenerator = new __WEBPACK_IMPORTED_MODULE_0__utils_TileGenerator__["a" /* TileGenerator */](150, 80, 50, 4, 9);
         this.tileGenerator.populate();
 
         this.backgroundRenderer = new __WEBPACK_IMPORTED_MODULE_1__utils_TileRenderer__["a" /* TileRenderer */](this.tileGenerator);
         this.stars  = [];
-        this.tileTicker = new __WEBPACK_IMPORTED_MODULE_3__utils_TickHelper__["a" /* TickHelper */](80, () => {
-            this.tileGenerator.next();
-        });
 
         this.starTicker = new __WEBPACK_IMPORTED_MODULE_3__utils_TickHelper__["a" /* TickHelper */](25, () => {
             this.stars.push(new __WEBPACK_IMPORTED_MODULE_2__Star__["a" /* Star */]());
@@ -405,7 +405,6 @@ class Background
 
     render(canvasHelper)
     {
-        this.tileTicker.tick();
         this.starTicker.tick();
 
         canvasHelper.context.fillStyle = canvasHelper.COLOR.STARS;
@@ -592,11 +591,12 @@ class Music
         this.audio.setAttribute('preload',  'auto');
         this.audio.setAttribute('controls', 'none');
         this.audio.setAttribute('loop',     'none');
+        this.audio.volume = 0.03;
         this.audio.style.display = 'none';
 
         document.body.appendChild(this.audio);
 
-        //this.audio.play();
+        this.audio.play();
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Music;
@@ -660,12 +660,13 @@ class Socket
 
 class ServerHandler
 {
-    constructor(canvasHelper, userRenderer, floorGenerator, nameGenerator)
+    constructor(canvasHelper, userRenderer, floorGenerator, nameGenerator, background)
     {
         this.canvasHelper   = canvasHelper;
         this.userRenderer   = userRenderer;
         this.floorGenerator = floorGenerator;
         this.nameGenerator  = nameGenerator;
+        this.background     = background;
         this.serverDisplay  = new __WEBPACK_IMPORTED_MODULE_0__ServerDisplay__["a" /* ServerDisplay */]();
     }
 
@@ -675,6 +676,14 @@ class ServerHandler
         this.floorGenerator.offset = data.floorOffset;
         this.serverDisplay.update(data, this.nameGenerator.name);
         this.userRenderer.update(data.players);
+
+        if (data.floorUpdated)
+        {
+            if (Math.random() > .8)
+            {
+                this.background.tileGenerator.next();
+            }
+        }
     }
 
     onHandshake(socket, data)
@@ -930,6 +939,43 @@ class NameGenerator
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = NameGenerator;
+
+
+/***/ }),
+/* 18 */,
+/* 19 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+class FullScreen
+{
+    constructor()
+    {
+        document.body.addEventListener('click', () => this.request());
+    }
+
+    request()
+    {
+        // Supports most browsers and their versions.
+        var requestMethod = document.body.requestFullScreen       ||
+                            document.body.webkitRequestFullScreen ||
+                            document.body.mozRequestFullScreen    ||
+                            document.body.msRequestFullScreen;
+        if (requestMethod)
+        {
+            requestMethod.call(document.body);
+        }
+        else if (typeof window.ActiveXObject !== "undefined")
+        {
+            var wscript = new ActiveXObject("WScript.Shell");
+            if (wscript !== null)
+            {
+                wscript.SendKeys("{F11}");
+            }
+        }
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = FullScreen;
 
 
 /***/ })

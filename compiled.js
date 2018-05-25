@@ -136,7 +136,7 @@ class TickHandler
     {
         this.callback = callback;
 
-        setInterval(() => this.callback(), 10);
+        setInterval(() => this.callback(), 15);
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = TickHandler;
@@ -266,9 +266,10 @@ class Floor
         this.blockHeight    = 30;
         this.maxBlocks      = 100;
         this.minBlockHeight = 2;
-        this.maxBlockHeight = 8;
+        this.maxBlockHeight = 9;
         this.angle          = Math.atan2(this.blockHeight, this.blockWidth);
         this.offset         = 0;
+        this.updated        = false;
         this.calculator     = new __WEBPACK_IMPORTED_MODULE_0__FloorCalculator__["a" /* FloorCalculator */](this);
         this.locations      = [this.minBlockHeight];
 
@@ -286,6 +287,7 @@ class Floor
         {
             this.offset -= this.blockWidth;
             this.next();
+            this.updated = true;
         }
     }
 
@@ -516,12 +518,15 @@ class SocketHandler
         this.playerManager.scoreHandler.update(this.playerManager.players);
 
         io.emit('update', {
-            uptime      : process.env.UPTIME,
-            top5        : this.playerManager.scoreHandler.getTop5(),
-            floors      : this.floor.locations,
-            floorOffset : this.floor.offset,
-            players     : this.playerManager.players
+            uptime       : process.env.UPTIME,
+            top5         : this.playerManager.scoreHandler.getTop5(),
+            floors       : this.floor.locations,
+            floorOffset  : this.floor.offset,
+            floorUpdated : this.floor.updated,
+            players      : this.playerManager.players
         });
+
+        this.floor.updated = false;
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = SocketHandler;
@@ -554,6 +559,7 @@ class PlayerManager
         this.hasChanged = false;
         this.players.forEach((x, i) => {
             x.tick(this.floor);
+            x.score += this.players.length - 1;
 
             x.applyGravity(this.floor);
             x.updateAngle(this.floor);
@@ -565,7 +571,7 @@ class PlayerManager
                 this.players.forEach(y => y.position.x -= offset);
                 this.floor.setOffset(offset);
 
-                x.score += 10;
+                x.score += this.players.length - 1;
             }
 
             if (x.isOutOfBounds())
@@ -618,9 +624,9 @@ const LEFT  = 37;
 const UP    = 38;
 const RIGHT = 39;
 
-const HILL_SPEED    = 2;
-const SPEED         = 4;
-const RAMP_SPEED    = 8;
+const HILL_SPEED    = 3;
+const SPEED         = 5;
+const RAMP_SPEED    = 12;
 
 const MAX_SPEED     = 50;
 const JUMP_SPEED    = 20;
@@ -672,8 +678,6 @@ class User
 
     tick(floor)
     {
-        this.score++;
-
         if (this.movements.left)
         {
             let slope = floor.calculator.getSlopeByOffset(this.position.x);
