@@ -12,7 +12,11 @@ export class Music
         this.audio.style.display = 'none';
 
         document.body.appendChild(this.audio);
+        document.body.addEventListener('click', () => this.request());
+    }
 
+    request()
+    {
         this.audio.play();
     }
 }

@@ -4,7 +4,7 @@ export class Floor
 {
     constructor(minBlockHeight, maxBlockHeight)
     {
-        this.blockWidth     = 100;
+        this.blockWidth     = 90;
         this.blockHeight    = 30;
         this.maxBlocks      = 100;
         this.minBlockHeight = 2;

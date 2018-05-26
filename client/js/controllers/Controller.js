@@ -12,6 +12,7 @@ export class Controller
         this.addKey(37, () => this.onKeyLeft());
         this.addKey(39, () => this.onKeyRight());
         this.addKey(38, () => this.onKeyUp());
+        this.addKey(32, () => this.onKeyUp());
     }
 
     addKey(key)

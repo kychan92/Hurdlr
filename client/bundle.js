@@ -186,10 +186,10 @@ class PingDisplay
 {
     constructor()
     {
-        this.x = window.innerWidth - 325;
-        this.y = 20;
+        this.x             = window.innerWidth - 325;
+        this.y             = 20;
         this.lastCheckTime = null;
-        this.latency = 'TBA';
+        this.latency       = 'TBA';
 
         window.addEventListener('resize', () => {
             this.x = window.innerWidth - 325;
@@ -532,7 +532,7 @@ class Floor
 {
     constructor()
     {
-        this.floorGenerator = new __WEBPACK_IMPORTED_MODULE_0__utils_TileGenerator__["a" /* TileGenerator */](100, 30, 40, 2, 2);
+        this.floorGenerator = new __WEBPACK_IMPORTED_MODULE_0__utils_TileGenerator__["a" /* TileGenerator */](90, 30, 40, 2, 2);
         this.floorRenderer  = new __WEBPACK_IMPORTED_MODULE_1__utils_TileRenderer__["a" /* TileRenderer */](this.floorGenerator);
     }
 
@@ -566,6 +566,7 @@ class Controller
         this.addKey(37, () => this.onKeyLeft());
         this.addKey(39, () => this.onKeyRight());
         this.addKey(38, () => this.onKeyUp());
+        this.addKey(32, () => this.onKeyUp());
     }
 
     addKey(key)
@@ -651,7 +652,11 @@ class Music
         this.audio.style.display = 'none';
 
         document.body.appendChild(this.audio);
+        document.body.addEventListener('click', () => this.request());
+    }
 
+    request()
+    {
         this.audio.play();
     }
 }
@@ -885,7 +890,7 @@ class InfoDisplay
 const USER_WIDTH  = 30;
 const USER_HEIGHT = 30;
 
-const OPPONENTS_ALPHA = 0.7;
+const OPPONENTS_ALPHA = 0.6;
 
 class UserRenderer
 {

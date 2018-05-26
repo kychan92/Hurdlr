@@ -2,10 +2,10 @@ export class PingDisplay
 {
     constructor()
     {
-        this.x = window.innerWidth - 325;
-        this.y = 20;
+        this.x             = window.innerWidth - 325;
+        this.y             = 20;
         this.lastCheckTime = null;
-        this.latency = 'TBA';
+        this.latency       = 'TBA';
 
         window.addEventListener('resize', () => {
             this.x = window.innerWidth - 325;

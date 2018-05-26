@@ -5,7 +5,7 @@ export class Floor
 {
     constructor()
     {
-        this.floorGenerator = new TileGenerator(100, 30, 40, 2, 2);
+        this.floorGenerator = new TileGenerator(90, 30, 40, 2, 2);
         this.floorRenderer  = new TileRenderer(this.floorGenerator);
     }
 

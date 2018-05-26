@@ -251,7 +251,7 @@ class Floor
 {
     constructor(minBlockHeight, maxBlockHeight)
     {
-        this.blockWidth     = 100;
+        this.blockWidth     = 90;
         this.blockHeight    = 30;
         this.maxBlocks      = 100;
         this.minBlockHeight = 2;
@@ -622,16 +622,17 @@ class PlayerManager
 const LEFT  = 37;
 const UP    = 38;
 const RIGHT = 39;
+const UP2   = 32;
 
 const HILL_SPEED = 3;
-const SPEED      = 5;
-const RAMP_SPEED = 12;
+const SPEED      = 6;
+const RAMP_SPEED = 13;
 
 const MAX_SPEED     = 50;
 const JUMP_SPEED    = 20;
 const JUMP_TICKS    = 20;
 const GRAVITY_SPEED = 12;
-const TWEEN_SPEED   = 0.15;
+const TWEEN_SPEED   = 0.05;
 
 class User
 {
@@ -641,6 +642,12 @@ class User
         this.name      = name;
 
         this.reset();
+
+        this.movements = {
+            left  : false,
+            right : false,
+            up    : false
+        };
     }
 
     reset()
@@ -651,12 +658,6 @@ class User
         this.angle     = 0;
         this.isJumping = true;
         this.jumpTick  = 0;
-
-        this.movements = {
-            left  : false,
-            right : false,
-            up    : false
-        };
     }
 
     getSlopeSpeed(slope, inverse)
@@ -711,6 +712,7 @@ class User
         if (action.key ==  LEFT) this.movements.left  = action.activated;
         if (action.key == RIGHT) this.movements.right = action.activated;
         if (action.key ==    UP) this.movements.up    = action.activated;
+        if (action.key ==   UP2) this.movements.up    = action.activated;
     }
 
     applyGravity(floor)
