@@ -11,7 +11,8 @@
     "buildClient": "cd client && webpack js/main.js bundle.js",
     "build": "npm run buildClient && webpack --config webpack.config.js",
     "start": "node bundle.js",
-    "watch": "nodemon bundle.js",
+    "watch": "npm run build && npm run start",
+    "watchd" : "nodemon --ignore bundle.js --exec npm run watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

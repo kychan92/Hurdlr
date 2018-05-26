@@ -1,4 +1,4 @@
-export class SocketHandler
+export class SocketController
 {
     constructor(playerManager, floor)
     {
@@ -21,7 +21,7 @@ export class SocketHandler
         let user = this.playerManager.get(socket.id);
         if (user)
         {
-            user.move(data);
+            user.updateMoveState(data);
             return true;
         }
 
@@ -30,7 +30,7 @@ export class SocketHandler
 
     onMessage(socket, data)
     {
-        if (data.message.startsWith('/name'))
+        if (data.message.toLowerCase().startsWith('/name'))
         {
             let parts = data.message.split(' ');
             let user  = this.playerManager.get(socket.id);
@@ -53,19 +53,29 @@ export class SocketHandler
         return true;
     }
 
-    onUpdateRequest(io)
+    onUpdateRequest(io, force)
     {
         this.playerManager.scoreHandler.update(this.playerManager.players);
 
-        io.emit('update', {
-            uptime       : process.env.UPTIME,
-            top5         : this.playerManager.scoreHandler.getTop5(),
-            floors       : this.floor.locations,
-            floorOffset  : this.floor.offset,
-            floorUpdated : this.floor.updated,
-            players      : this.playerManager.players
-        });
+        let updates = {};
 
-        this.floor.updated = false;
+        if (this.playerManager.scoreHandler.updated || force)
+        {
+            updates.top5 = this.playerManager.scoreHandler.getTop5();
+        }
+
+        if (this.floor.updated || force)
+        {
+            updates.floors = this.floor.locations;
+            updates.offset = this.floor.offset;
+            this.floor.updated = false;
+        }
+
+        if (this.playerManager.updated || force)
+        {
+            updates.players = this.playerManager.players;
+        }
+
+        io.emit('update', updates);
     }
 }

@@ -9,13 +9,15 @@ export class PlayerManager
         this.players      = [];
         this.floor        = floor;
         this.scoreHandler = new ScoreHandler();
-        this.hasChanged   = false;
+        this.updated      = true;
     }
 
     onTick()
     {
-        this.hasChanged = false;
+        this.updated = false;
         this.players.forEach((x, i) => {
+            let position = x.position.clone();
+
             x.tick(this.floor);
             x.score++;
 
@@ -36,9 +38,12 @@ export class PlayerManager
             {
                 x.reset();
             }
-        });
 
-        this.hasChanged = true;
+            if (!x.position.proximates(position, 0.01))
+            {
+                this.updated = true;
+            }
+        });
     }
 
     get(socketId)

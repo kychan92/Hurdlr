@@ -72,49 +72,36 @@ class ScoreHandler
 {
     constructor()
     {
-        this.top5 = [{
-            name  : 'Kai',
-            score : 50000
-        }];
-    }
-
-    add(player)
-    {
-        let index = this.top5.findIndex(x => x.name == player.name);
-        if (index !== -1)
-        {
-            if (player.score > this.top5[index].score)
-            {
-                this.top5[index].score = player.score;
-            }
-
-            return;
-        }
-
-        this.top5.push({
-            id    : player.id,
-            name  : player.name,
-            score : player.score
-        });
+        this.top5    = [];
+        this.updated = true;
     }
 
     update(players)
     {
-        players.forEach(player => {
+        this.updated = false;
+
+        players.forEach(x => {
+            let p = this.top5.find(y => y.name == x.name);
+            if (p)
+            {
+                return;
+            }
+
             if (this.top5.length < 5)
             {
-                return this.add(player);
+                this.top5.push(x);
+                this.updated = true;
+                return;
             }
 
-            let index = this.top5.findIndex(x => x.score < player.score);
-            if (index !== -1)
+            let pi = this.top5.findIndex(y => y.score < x.score);
+            if (pi !== -1)
             {
-                this.top5.splice(index, 1);
-                this.add(player);
+                console.log(pi);
+                this.top5.splice(pi, 1, x);
+                this.updated = true;
             }
         });
-
-        this.top5.sort((a, b) => a.score < b.score);
     }
 
     getTop5()
@@ -154,7 +141,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__models_Floor__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__models_SocketManager__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__models_ScoreHandler__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__controllers_SocketHandler__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__controllers_SocketController__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__models_PlayerManager__ = __webpack_require__(12);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__models_TickHandler__ = __webpack_require__(1);
 
@@ -170,17 +157,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 let server = new __WEBPACK_IMPORTED_MODULE_1__controllers_Server__["a" /* Server */]();
 let floor  = new __WEBPACK_IMPORTED_MODULE_2__models_Floor__["a" /* Floor */](2, 15);
 
-let playerManager = new __WEBPACK_IMPORTED_MODULE_6__models_PlayerManager__["a" /* PlayerManager */](floor);
-let socketHandler = new __WEBPACK_IMPORTED_MODULE_5__controllers_SocketHandler__["a" /* SocketHandler */](playerManager, floor);
-let socketManager = new __WEBPACK_IMPORTED_MODULE_3__models_SocketManager__["a" /* SocketManager */](server, socketHandler);
+let playerManager    = new __WEBPACK_IMPORTED_MODULE_6__models_PlayerManager__["a" /* PlayerManager */](floor);
+let socketController = new __WEBPACK_IMPORTED_MODULE_5__controllers_SocketController__["a" /* SocketController */](playerManager, floor);
+let socketManager    = new __WEBPACK_IMPORTED_MODULE_3__models_SocketManager__["a" /* SocketManager */](server, socketController);
 
-let tickHandler   = new __WEBPACK_IMPORTED_MODULE_7__models_TickHandler__["a" /* TickHandler */](() => {
+let tickHandler = new __WEBPACK_IMPORTED_MODULE_7__models_TickHandler__["a" /* TickHandler */](() => {
     playerManager.onTick();
 
-    if (playerManager.hasChanged)
-    {
-        socketHandler.onUpdateRequest(socketManager.io);
-    }
+    socketController.onUpdateRequest(socketManager.io);
 });
 
 server.listen(process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080,
@@ -270,7 +254,7 @@ class Floor
         this.maxBlockHeight = 9;
         this.angle          = Math.atan2(this.blockHeight, this.blockWidth);
         this.offset         = 0;
-        this.updated        = false;
+        this.updated        = true;
         this.calculator     = new __WEBPACK_IMPORTED_MODULE_0__FloorCalculator__["a" /* FloorCalculator */](this);
         this.locations      = [this.minBlockHeight];
 
@@ -282,13 +266,17 @@ class Floor
 
     setOffset(offset)
     {
+        if (offset > 0.2)
+        {
+            this.updated = true;
+        }
+
         this.offset += offset;
 
         if (this.offset > this.blockWidth)
         {
             this.offset -= this.blockWidth;
             this.next();
-            this.updated = true;
         }
     }
 
@@ -390,24 +378,21 @@ class FloorCalculator
 "use strict";
 class SocketManager
 {
-    constructor(app, socketHandler)
+    constructor(app, socketController)
     {
-        this.io            = __webpack_require__(10)(app);
-        this.socketHandler = socketHandler;
-        this.connections   = [];
+        this.io               = __webpack_require__(10)(app);
+        this.socketController = socketController;
     
         this.io.on('connection', socket => this.onConnect(socket));
     }
 
     onConnect(socket)
     {
-        this.connections.push(socket);
-
         socket.on('join', (data) => {
-            if (this.socketHandler.onJoin(socket, data))
+            if (this.socketController.onJoin(socket, data))
             {
-                socket.emit('handshake', { result : true, name : data.name });
-                this.socketHandler.onUpdateRequest(this.io);
+                socket.emit('handshake', { result : true, name : data.name, uptime : process.env.UPTIME });
+                this.socketController.onUpdateRequest(this.io, true);
                 return;
             }
 
@@ -415,33 +400,27 @@ class SocketManager
         });
 
         socket.on('action', (data) => {
-            if (this.socketHandler.onAction(socket, data))
+            if (this.socketController.onAction(socket, data))
             {
-                this.socketHandler.onUpdateRequest(this.io);
+                this.socketController.onUpdateRequest(this.io);
             }
         });
 
         socket.on('disconnect', () => {
-            if (this.socketHandler.onDisconnect(socket))
+            if (this.socketController.onDisconnect(socket))
             {
-                let index = this.connections.indexOf(socket);
-                if (index !== -1)
-                {
-                    this.connections.splice(index, 1);
-                }
-
-                this.socketHandler.onUpdateRequest(this.io);
+                this.socketController.onUpdateRequest(this.io);
             }
         });
 
         socket.on('message', (data) => {
-            if (this.socketHandler.onMessage(socket, data))
+            if (this.socketController.onMessage(socket, data))
             {
                 this.io.emit('message', data);
                 return;
             }
 
-            this.socketHandler.onUpdateRequest(this.io);
+            this.socketController.onUpdateRequest(this.io, true);
         })
     }
 }
@@ -459,7 +438,7 @@ module.exports = require("socket.io");
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-class SocketHandler
+class SocketController
 {
     constructor(playerManager, floor)
     {
@@ -482,7 +461,7 @@ class SocketHandler
         let user = this.playerManager.get(socket.id);
         if (user)
         {
-            user.move(data);
+            user.updateMoveState(data);
             return true;
         }
 
@@ -491,7 +470,7 @@ class SocketHandler
 
     onMessage(socket, data)
     {
-        if (data.message.startsWith('/name'))
+        if (data.message.toLowerCase().startsWith('/name'))
         {
             let parts = data.message.split(' ');
             let user  = this.playerManager.get(socket.id);
@@ -514,23 +493,33 @@ class SocketHandler
         return true;
     }
 
-    onUpdateRequest(io)
+    onUpdateRequest(io, force)
     {
         this.playerManager.scoreHandler.update(this.playerManager.players);
 
-        io.emit('update', {
-            uptime       : process.env.UPTIME,
-            top5         : this.playerManager.scoreHandler.getTop5(),
-            floors       : this.floor.locations,
-            floorOffset  : this.floor.offset,
-            floorUpdated : this.floor.updated,
-            players      : this.playerManager.players
-        });
+        let updates = {};
 
-        this.floor.updated = false;
+        if (this.playerManager.scoreHandler.updated || force)
+        {
+            updates.top5 = this.playerManager.scoreHandler.getTop5();
+        }
+
+        if (this.floor.updated || force)
+        {
+            updates.floors = this.floor.locations;
+            updates.offset = this.floor.offset;
+            this.floor.updated = false;
+        }
+
+        if (this.playerManager.updated || force)
+        {
+            updates.players = this.playerManager.players;
+        }
+
+        io.emit('update', updates);
     }
 }
-/* harmony export (immutable) */ __webpack_exports__["a"] = SocketHandler;
+/* harmony export (immutable) */ __webpack_exports__["a"] = SocketController;
 
 
 /***/ }),
@@ -552,13 +541,15 @@ class PlayerManager
         this.players      = [];
         this.floor        = floor;
         this.scoreHandler = new __WEBPACK_IMPORTED_MODULE_0__ScoreHandler__["a" /* ScoreHandler */]();
-        this.hasChanged   = false;
+        this.updated      = true;
     }
 
     onTick()
     {
-        this.hasChanged = false;
+        this.updated = false;
         this.players.forEach((x, i) => {
+            let position = x.position.clone();
+
             x.tick(this.floor);
             x.score++;
 
@@ -579,9 +570,12 @@ class PlayerManager
             {
                 x.reset();
             }
-        });
 
-        this.hasChanged = true;
+            if (!x.position.proximates(position, 0.01))
+            {
+                this.updated = true;
+            }
+        });
     }
 
     get(socketId)
@@ -625,9 +619,9 @@ const LEFT  = 37;
 const UP    = 38;
 const RIGHT = 39;
 
-const HILL_SPEED    = 3;
-const SPEED         = 5;
-const RAMP_SPEED    = 12;
+const HILL_SPEED = 3;
+const SPEED      = 5;
+const RAMP_SPEED = 12;
 
 const MAX_SPEED     = 50;
 const JUMP_SPEED    = 20;
@@ -708,7 +702,7 @@ class User
         this.velocityX  -= stepMove;
     }
 
-    move(action)
+    updateMoveState(action)
     {
         if (action.key ==  LEFT) this.movements.left  = action.activated;
         if (action.key == RIGHT) this.movements.right = action.activated;
@@ -730,23 +724,14 @@ class User
 
     updateAngle(floor)
     {
-        if (this.isJumping)
-        {
-            return 0;
-        }
+        if (this.isJumping) return 0;
 
         this.angle = floor.calculator.getSlopeByOffset(this.position.x) * floor.angle;
     }
 
     isOutOfBounds()
     {
-        if (this.position.x + 15 < 0)
-        {
-            console.log('OUT!')
-            return true;
-        }
-
-        return false;
+        return (this.position.x + 15 < 0);
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = User;
@@ -763,6 +748,24 @@ class Vector
     {
         this.x = x;
         this.y = y;
+    }
+
+    clone()
+    {
+        return new Vector(this.x, this.y);
+    }
+
+    equals(vector)
+    {
+        return (this.x == vector.x && this.y == vector.y);
+    }
+
+    proximates(vector, offset)
+    {
+        return (vector.x > this.x - offset &&
+                vector.x < this.x + offset &&
+                vector.y > this.y - offset &&
+                vector.y < this.y + offset);
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Vector;

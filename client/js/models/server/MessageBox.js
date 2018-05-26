@@ -1,10 +1,10 @@
 export class MessageBox
 {
-    constructor(nameGenerator, io)
+    constructor(nameGenerator, socket)
     {
         this.nameGenerator = nameGenerator;
         this.name          = name;
-        this.io            = io;
+        this.socket        = socket;
         this.container     = document.createElement('div');
         this.container.id  = 'message-container';
 
@@ -20,7 +20,7 @@ export class MessageBox
 
         this.inputField.addEventListener('keydown', (event) => this.onKey(event));
 
-        this.io.on('message', (data) => this.addMessage(this.nameGenerator.name, data.message));
+        this.socket.io.on('message', (data) => this.addMessage(this.nameGenerator.name, data.message));
 
         this.addWelcomeMessage();
     }
@@ -33,6 +33,7 @@ export class MessageBox
 
     addWelcomeMessage()
     {
+        this.messageBox.innerHTML += `<div class="item">Server running since ${this.socket.uptime}.</div>`;
         this.messageBox.innerHTML += '<div class="item-break-word">Welcome visitor! Outplay your enemies by sliding faster and beat them. Change name with /name in chat.</div>';
     }
 
@@ -40,7 +41,7 @@ export class MessageBox
     {
         if (event.keyCode == 13)
         {
-            this.io.emit('message', {
+            this.socket.io.emit('message', {
                 name    : this.nameGenerator.name,
                 message : this.inputField.value
             });

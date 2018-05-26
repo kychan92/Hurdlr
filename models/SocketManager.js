@@ -1,23 +1,20 @@
 export class SocketManager
 {
-    constructor(app, socketHandler)
+    constructor(app, socketController)
     {
-        this.io            = require('socket.io')(app);
-        this.socketHandler = socketHandler;
-        this.connections   = [];
+        this.io               = require('socket.io')(app);
+        this.socketController = socketController;
     
         this.io.on('connection', socket => this.onConnect(socket));
     }
 
     onConnect(socket)
     {
-        this.connections.push(socket);
-
         socket.on('join', (data) => {
-            if (this.socketHandler.onJoin(socket, data))
+            if (this.socketController.onJoin(socket, data))
             {
-                socket.emit('handshake', { result : true, name : data.name });
-                this.socketHandler.onUpdateRequest(this.io);
+                socket.emit('handshake', { result : true, name : data.name, uptime : process.env.UPTIME });
+                this.socketController.onUpdateRequest(this.io, true);
                 return;
             }
 
@@ -25,33 +22,27 @@ export class SocketManager
         });
 
         socket.on('action', (data) => {
-            if (this.socketHandler.onAction(socket, data))
+            if (this.socketController.onAction(socket, data))
             {
-                this.socketHandler.onUpdateRequest(this.io);
+                this.socketController.onUpdateRequest(this.io);
             }
         });
 
         socket.on('disconnect', () => {
-            if (this.socketHandler.onDisconnect(socket))
+            if (this.socketController.onDisconnect(socket))
             {
-                let index = this.connections.indexOf(socket);
-                if (index !== -1)
-                {
-                    this.connections.splice(index, 1);
-                }
-
-                this.socketHandler.onUpdateRequest(this.io);
+                this.socketController.onUpdateRequest(this.io);
             }
         });
 
         socket.on('message', (data) => {
-            if (this.socketHandler.onMessage(socket, data))
+            if (this.socketController.onMessage(socket, data))
             {
                 this.io.emit('message', data);
                 return;
             }
 
-            this.socketHandler.onUpdateRequest(this.io);
+            this.socketController.onUpdateRequest(this.io, true);
         })
     }
 }

@@ -4,9 +4,9 @@ const LEFT  = 37;
 const UP    = 38;
 const RIGHT = 39;
 
-const HILL_SPEED    = 3;
-const SPEED         = 5;
-const RAMP_SPEED    = 12;
+const HILL_SPEED = 3;
+const SPEED      = 5;
+const RAMP_SPEED = 12;
 
 const MAX_SPEED     = 50;
 const JUMP_SPEED    = 20;
@@ -87,7 +87,7 @@ export class User
         this.velocityX  -= stepMove;
     }
 
-    move(action)
+    updateMoveState(action)
     {
         if (action.key ==  LEFT) this.movements.left  = action.activated;
         if (action.key == RIGHT) this.movements.right = action.activated;
@@ -109,22 +109,13 @@ export class User
 
     updateAngle(floor)
     {
-        if (this.isJumping)
-        {
-            return 0;
-        }
+        if (this.isJumping) return 0;
 
         this.angle = floor.calculator.getSlopeByOffset(this.position.x) * floor.angle;
     }
 
     isOutOfBounds()
     {
-        if (this.position.x + 15 < 0)
-        {
-            console.log('OUT!')
-            return true;
-        }
-
-        return false;
+        return (this.position.x + 15 < 0);
     }
 }

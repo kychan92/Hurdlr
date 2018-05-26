@@ -2,49 +2,36 @@ export class ScoreHandler
 {
     constructor()
     {
-        this.top5 = [{
-            name  : 'Kai',
-            score : 50000
-        }];
-    }
-
-    add(player)
-    {
-        let index = this.top5.findIndex(x => x.name == player.name);
-        if (index !== -1)
-        {
-            if (player.score > this.top5[index].score)
-            {
-                this.top5[index].score = player.score;
-            }
-
-            return;
-        }
-
-        this.top5.push({
-            id    : player.id,
-            name  : player.name,
-            score : player.score
-        });
+        this.top5    = [];
+        this.updated = true;
     }
 
     update(players)
     {
-        players.forEach(player => {
+        this.updated = false;
+
+        players.forEach(x => {
+            let p = this.top5.find(y => y.name == x.name);
+            if (p)
+            {
+                return;
+            }
+
             if (this.top5.length < 5)
             {
-                return this.add(player);
+                this.top5.push(x);
+                this.updated = true;
+                return;
             }
 
-            let index = this.top5.findIndex(x => x.score < player.score);
-            if (index !== -1)
+            let pi = this.top5.findIndex(y => y.score < x.score);
+            if (pi !== -1)
             {
-                this.top5.splice(index, 1);
-                this.add(player);
+                console.log(pi);
+                this.top5.splice(pi, 1, x);
+                this.updated = true;
             }
         });
-
-        this.top5.sort((a, b) => a.score < b.score);
     }
 
     getTop5()

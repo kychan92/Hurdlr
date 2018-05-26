@@ -182,7 +182,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__controllers_Controller__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__models_ambient_Music__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__models_server_Socket__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__models_server_ServerHandler__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__models_server_SocketHandler__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__models_utils_UserRenderer__ = __webpack_require__(15);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__models_server_Messagebox__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__models_NameGenerator__ = __webpack_require__(17);
@@ -207,22 +207,17 @@ let canvasHelper  = new __WEBPACK_IMPORTED_MODULE_0__models_CanvasHelper__["a" /
 let background    = new __WEBPACK_IMPORTED_MODULE_1__models_ambient_Background__["a" /* Background */]();
 let floor         = new __WEBPACK_IMPORTED_MODULE_2__models_Floor__["a" /* Floor */]();
 let userRenderer  = new __WEBPACK_IMPORTED_MODULE_7__models_utils_UserRenderer__["a" /* UserRenderer */]();
-let socket        = new __WEBPACK_IMPORTED_MODULE_5__models_server_Socket__["a" /* Socket */](new __WEBPACK_IMPORTED_MODULE_6__models_server_ServerHandler__["a" /* ServerHandler */](canvasHelper, userRenderer, floor.floorGenerator, nameGenerator, background));
+let socket        = new __WEBPACK_IMPORTED_MODULE_5__models_server_Socket__["a" /* Socket */](new __WEBPACK_IMPORTED_MODULE_6__models_server_SocketHandler__["a" /* SocketHandler */](canvasHelper, userRenderer, floor.floorGenerator, nameGenerator, background));
 socket.setController(new __WEBPACK_IMPORTED_MODULE_3__controllers_Controller__["a" /* Controller */]());
 
 canvasHelper.add(background);
 canvasHelper.add(floor);
 canvasHelper.add(userRenderer);
 
-window.addEventListener('resize', () => {
-    canvasHelper.canvas.width  = window.innerWidth;
-    canvasHelper.canvas.height = window.innerHeight;
-});
-
 let name = nameGenerator.get();
 let connect = () => {
     socket.join(name, () => {
-        new __WEBPACK_IMPORTED_MODULE_8__models_server_Messagebox__["a" /* MessageBox */](nameGenerator, socket.io);
+        new __WEBPACK_IMPORTED_MODULE_8__models_server_Messagebox__["a" /* MessageBox */](nameGenerator, socket);
     
         canvasHelper.render();
     }, () => {
@@ -264,6 +259,11 @@ class CanvasHelper
 
         this.paletteTicker = new __WEBPACK_IMPORTED_MODULE_1__utils_TickHelper__["a" /* TickHelper */](10000, () => {
             this.COLOR = this.palette.next();
+        });
+
+        window.addEventListener('resize', () => {
+            this.canvas.width  = window.innerWidth;
+            this.canvas.height = window.innerHeight;
         });
     }
 
@@ -613,7 +613,27 @@ class Socket
         this.handler = handler;
 
         this.io = io((window.location.href.indexOf('localhost') !== -1) ? 'http://localhost:8080' : 'http://hurdlr-hurdlr.a3c1.starter-us-west-1.openshiftapps.com');
-        this.io.on('update',  data => this.handler.onUpdate(this.io, data));
+        this.io.on('update', data => this.onUpdate(data));
+    }
+
+    onUpdate(data)
+    {
+        this.handler.onSyncTick();
+
+        if (data.top5)
+        {
+            this.handler.onScore(this.io, data);
+        }
+
+        if (data.floors)
+        {
+            this.handler.onFloor(this.io, data);
+        }
+
+        if (data.players)
+        {
+            this.handler.onPlayers(this.io, data);
+        }
     }
 
     setController(controller)
@@ -627,12 +647,13 @@ class Socket
         this.io.on('handshake', (data) => {
             if (data.result)
             {
+                this.uptime = data.uptime;
                 this.handler.onHandshake(this.io, data);
-                successCallback();
+                successCallback(data);
             }
             else
             {
-                failedCallback();
+                failedCallback(data);
             }
         });
 
@@ -654,10 +675,10 @@ class Socket
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ServerDisplay__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__InfoDisplay__ = __webpack_require__(14);
 
 
-class ServerHandler
+class SocketHandler
 {
     constructor(canvasHelper, userRenderer, floorGenerator, nameGenerator, background)
     {
@@ -666,31 +687,51 @@ class ServerHandler
         this.floorGenerator = floorGenerator;
         this.nameGenerator  = nameGenerator;
         this.background     = background;
-        this.serverDisplay  = new __WEBPACK_IMPORTED_MODULE_0__ServerDisplay__["a" /* ServerDisplay */]();
+        this.infoDisplay    = new __WEBPACK_IMPORTED_MODULE_0__InfoDisplay__["a" /* InfoDisplay */]();
     }
 
-    onUpdate(socket, data)
+    onScore(socket, data)
+    {
+        this.infoDisplay.top5 = data.top5;
+        this.infoDisplay.draw();
+    }
+
+    onFloor(socket, data)
     {
         this.floorGenerator.tiles  = data.floors;
-        this.floorGenerator.offset = data.floorOffset;
-        this.serverDisplay.update(data, this.nameGenerator.name);
+        this.floorGenerator.offset = data.offset;
+    }
+
+    onSyncTick()
+    {
+        this.userRenderer.players.forEach(x => {
+            x.score++;
+
+            let top5Player = this.infoDisplay.top5.find(y => y.id == x.id);
+            if (top5Player && top5Player.score < x.score)
+            {
+                top5Player.score = x.score;
+            }
+        });
+        this.infoDisplay.draw();
+    }
+
+    onPlayers(socket, data)
+    {
         this.userRenderer.update(data.players);
 
-        if (data.floorUpdated)
-        {
-            if (Math.random() > .8)
-            {
-                this.background.tileGenerator.next();
-            }
-        }
+        this.infoDisplay.players = data.players;
+        this.infoDisplay.draw();
     }
 
     onHandshake(socket, data)
     {
         this.nameGenerator.save(data.name);
+        this.infoDisplay.name = data.name;
+        this.infoDisplay.draw();
     }
 }
-/* harmony export (immutable) */ __webpack_exports__["a"] = ServerHandler;
+/* harmony export (immutable) */ __webpack_exports__["a"] = SocketHandler;
 
 
 /***/ }),
@@ -698,79 +739,72 @@ class ServerHandler
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-class ServerDisplay
+class InfoDisplay
 {
     constructor()
     {
         this.container    = document.createElement('div');
         this.container.id = 'server-display';
+        this.top5         = [];
+        this.players      = [];
+        this.name         = '';
 
         document.body.appendChild(this.container);
     }
 
-    getTop5(list, identifier)
+    createTop5()
     {
-        let top5 = document.createElement('div');
-        top5.className = 'top5';
+        let div = document.createElement('div');
+        div.className = 'top5';
 
-        if (list.length > 0)
+        if (this.top5.length > 0)
         {
-            top5.innerHTML = '<div class="title">top 5</div>';
+            div.innerHTML = '<div class="title">top 5</div>';
 
-            list.forEach(x => {
-                top5.innerHTML += this.drawItem(x, identifier);
+            this.top5.forEach(x => {
+                div.innerHTML += this.drawItem(x);
             });
         }
 
-        return top5;
+        return div;
     }
 
-    drawItem(item, name)
+    drawItem(item)
     {
-        let ownerClass = (item.name == name) ? 'owner' : '';
+        let ownerClass = (item.name == this.name) ? 'owner' : '';
 
         return `<div class="item ${ownerClass}"><span class="name">${item.name}</span><span class="score">${item.score}</span></div>`;
     }
 
-    getUptime(time)
+    createPlayersList()
     {
-        let uptime = document.createElement('div');
-        uptime.className = 'uptime';
-        uptime.innerHTML = `Running since ${time}`;
+        let div = document.createElement('div');
+        div.className = 'players';
+        div.innerHTML += '<div class="title">Players</div>';
 
-        return uptime;
-    }
-
-    getPlayers(list, name)
-    {
-        let players = document.createElement('div');
-        players.className = 'players';
-        players.innerHTML += '<div class="title">Players</div>';
-
-        list.forEach(x => {
-            if (x.name)
-            {
-                players.innerHTML += this.drawItem(x, name);
-            }
-            else
-            {
-                players.innerHTML += `<span><em>pending...</em></span>`;
-            }
+        this.players.forEach(x => {
+            div.innerHTML += (x.name) ? this.drawItem(x) : `<span><em>pending...</em></span>`;
         });
 
-        return players;
+        return div;
     }
 
-    update(object, name)
+    update(top5, players, name)
+    {
+        this.top5    = top5;
+        this.players = players;
+        this.name    = name;
+    }
+
+    draw()
     {
         this.container.innerHTML = '';
 
-        this.container.appendChild(this.getUptime(object.uptime));
-        this.container.appendChild(this.getTop5(object.top5, name));
-        this.container.appendChild(this.getPlayers(object.players, name));
+        this.container.appendChild(this.createTop5());
+        this.container.appendChild(this.createPlayersList());
     }
 }
-/* harmony export (immutable) */ __webpack_exports__["a"] = ServerDisplay;
+/* harmony export (immutable) */ __webpack_exports__["a"] = InfoDisplay;
 
 
 /***/ }),
@@ -837,11 +871,11 @@ class UserRenderer
 "use strict";
 class MessageBox
 {
-    constructor(nameGenerator, io)
+    constructor(nameGenerator, socket)
     {
         this.nameGenerator = nameGenerator;
         this.name          = name;
-        this.io            = io;
+        this.socket        = socket;
         this.container     = document.createElement('div');
         this.container.id  = 'message-container';
 
@@ -857,7 +891,7 @@ class MessageBox
 
         this.inputField.addEventListener('keydown', (event) => this.onKey(event));
 
-        this.io.on('message', (data) => this.addMessage(this.nameGenerator.name, data.message));
+        this.socket.io.on('message', (data) => this.addMessage(this.nameGenerator.name, data.message));
 
         this.addWelcomeMessage();
     }
@@ -870,6 +904,7 @@ class MessageBox
 
     addWelcomeMessage()
     {
+        this.messageBox.innerHTML += `<div class="item">Server running since ${this.socket.uptime}.</div>`;
         this.messageBox.innerHTML += '<div class="item-break-word">Welcome visitor! Outplay your enemies by sliding faster and beat them. Change name with /name in chat.</div>';
     }
 
@@ -877,7 +912,7 @@ class MessageBox
     {
         if (event.keyCode == 13)
         {
-            this.io.emit('message', {
+            this.socket.io.emit('message', {
                 name    : this.nameGenerator.name,
                 message : this.inputField.value
             });

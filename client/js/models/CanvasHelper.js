@@ -21,6 +21,11 @@ export class CanvasHelper
         this.paletteTicker = new TickHelper(10000, () => {
             this.COLOR = this.palette.next();
         });
+
+        window.addEventListener('resize', () => {
+            this.canvas.width  = window.innerWidth;
+            this.canvas.height = window.innerHeight;
+        });
     }
 
     add(item)
