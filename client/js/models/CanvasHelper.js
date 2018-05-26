@@ -1,6 +1,8 @@
 import { Palette } from "./utils/Palette";
 import { TickHelper } from "./utils/TickHelper";
 
+const FILTER = 'brightness(90%)';
+
 export class CanvasHelper
 {
     constructor()
@@ -22,9 +24,11 @@ export class CanvasHelper
             this.COLOR = this.palette.next();
         });
 
+        this.context.filter      = FILTER;
         window.addEventListener('resize', () => {
             this.canvas.width  = window.innerWidth;
             this.canvas.height = window.innerHeight;
+            this.context.filter = FILTER;
         });
     }
 
@@ -50,6 +54,7 @@ export class CanvasHelper
 
         this.context.fillStyle = this.COLOR.BACKGROUND;
         this.context.fillRect(0, 0, window.innerWidth, window.innerHeight);
+
         this.items.forEach((x, i) => {
             if (x.removed)
             {

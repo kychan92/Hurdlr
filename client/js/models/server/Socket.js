@@ -24,6 +24,13 @@ export class Socket
 
         if (data.players)
         {
+            data.players.forEach(x => {
+                if (x.id == this.io.id)
+                {
+                    x.owned = true;
+                }
+            });
+
             this.handler.onPlayers(this.io, data);
         }
     }

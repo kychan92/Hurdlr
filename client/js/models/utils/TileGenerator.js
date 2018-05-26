@@ -1,13 +1,14 @@
 export class TileGenerator
 {
-    constructor(blockWidth, blockHeight, maxBlocks, minBlockHeight, maxBlockHeight)
+    constructor(blockWidth, blockHeight, maxBlocks, minBlockHeight, maxBlockHeight, noFlats)
     {
-        this.BLOCK_WIDTH      = blockWidth;
-        this.BLOCK_HEIGHT     = blockHeight;
-        this.MAX_BLOCKS       = maxBlocks;
-        this.ANGLE            = Math.atan2(blockHeight, blockWidth);
-        this.MIN_BLOCK_HEIGHT = minBlockHeight;
-        this.MAX_BLOCK_HEIGHT = maxBlockHeight;
+        this.blockWidth     = blockWidth;
+        this.blockHeight    = blockHeight;
+        this.maxBlocks      = maxBlocks;
+        this.angle          = Math.atan2(blockHeight, blockWidth);
+        this.minBlockHeight = minBlockHeight;
+        this.maxBlockHeight = maxBlockHeight;
+        this.noFlats        = noFlats;
 
         this.tiles  = [];
         this.offset = 0;
@@ -15,7 +16,7 @@ export class TileGenerator
 
     populate()
     {
-        for (let i = 0; i < this.MAX_BLOCKS; i++)
+        for (let i = 0; i < this.maxBlocks; i++)
         {
             this.generate();
         }
@@ -23,18 +24,24 @@ export class TileGenerator
 
     generate()
     {
-        let height = (this.tiles.length > 0) ? this.tiles[this.tiles.length - 1] : this.MIN_BLOCK_HEIGHT;
+        let height = (this.tiles.length > 0) ? this.tiles[this.tiles.length - 1] : this.minBlockHeight;
         height    += (Math.random() > .5) ? 1 : -1;
 
-        if (height > this.MAX_BLOCK_HEIGHT) height = this.MAX_BLOCK_HEIGHT;
-        if (height < this.MIN_BLOCK_HEIGHT) height = this.MIN_BLOCK_HEIGHT;
+        if (height > this.maxBlockHeight) height = (this.noFlats) ? this.maxBlockHeight - 1 : this.maxBlockHeight;
+        if (height < this.minBlockHeight) height = (this.noFlats) ? this.minBlockHeight + 1 : this.minBlockHeight;
 
         this.tiles.push(height);
     }
 
     next()
     {
-        this.tiles.shift();
-        this.generate();
+        this.offset++;
+
+        if (this.offset > this.blockWidth)
+        {
+            this.tiles.shift();
+            this.generate();
+            this.offset-=this.blockWidth;
+        }
     }
 }

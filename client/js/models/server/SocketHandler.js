@@ -1,14 +1,16 @@
 import { InfoDisplay } from "./InfoDisplay";
+import { PingDisplay } from "../utils/PingDisplay";
 
 export class SocketHandler
 {
-    constructor(canvasHelper, userRenderer, floorGenerator, nameGenerator, background)
+    constructor(canvasHelper, userRenderer, floorGenerator, nameGenerator, background, pingDisplay)
     {
         this.canvasHelper   = canvasHelper;
         this.userRenderer   = userRenderer;
         this.floorGenerator = floorGenerator;
         this.nameGenerator  = nameGenerator;
         this.background     = background;
+        this.pingDisplay    = pingDisplay;
         this.infoDisplay    = new InfoDisplay();
     }
 
@@ -22,10 +24,13 @@ export class SocketHandler
     {
         this.floorGenerator.tiles  = data.floors;
         this.floorGenerator.offset = data.offset;
+
+        this.background.tileGenerator.next();
     }
 
     onSyncTick()
     {
+        this.pingDisplay.update();
         this.userRenderer.players.forEach(x => {
             x.score++;
 

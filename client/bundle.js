@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 4);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -98,14 +98,15 @@ class TickHelper
 "use strict";
 class TileGenerator
 {
-    constructor(blockWidth, blockHeight, maxBlocks, minBlockHeight, maxBlockHeight)
+    constructor(blockWidth, blockHeight, maxBlocks, minBlockHeight, maxBlockHeight, noFlats)
     {
-        this.BLOCK_WIDTH      = blockWidth;
-        this.BLOCK_HEIGHT     = blockHeight;
-        this.MAX_BLOCKS       = maxBlocks;
-        this.ANGLE            = Math.atan2(blockHeight, blockWidth);
-        this.MIN_BLOCK_HEIGHT = minBlockHeight;
-        this.MAX_BLOCK_HEIGHT = maxBlockHeight;
+        this.blockWidth     = blockWidth;
+        this.blockHeight    = blockHeight;
+        this.maxBlocks      = maxBlocks;
+        this.angle          = Math.atan2(blockHeight, blockWidth);
+        this.minBlockHeight = minBlockHeight;
+        this.maxBlockHeight = maxBlockHeight;
+        this.noFlats        = noFlats;
 
         this.tiles  = [];
         this.offset = 0;
@@ -113,7 +114,7 @@ class TileGenerator
 
     populate()
     {
-        for (let i = 0; i < this.MAX_BLOCKS; i++)
+        for (let i = 0; i < this.maxBlocks; i++)
         {
             this.generate();
         }
@@ -121,19 +122,25 @@ class TileGenerator
 
     generate()
     {
-        let height = (this.tiles.length > 0) ? this.tiles[this.tiles.length - 1] : this.MIN_BLOCK_HEIGHT;
+        let height = (this.tiles.length > 0) ? this.tiles[this.tiles.length - 1] : this.minBlockHeight;
         height    += (Math.random() > .5) ? 1 : -1;
 
-        if (height > this.MAX_BLOCK_HEIGHT) height = this.MAX_BLOCK_HEIGHT;
-        if (height < this.MIN_BLOCK_HEIGHT) height = this.MIN_BLOCK_HEIGHT;
+        if (height > this.maxBlockHeight) height = (this.noFlats) ? this.maxBlockHeight - 1 : this.maxBlockHeight;
+        if (height < this.minBlockHeight) height = (this.noFlats) ? this.minBlockHeight + 1 : this.minBlockHeight;
 
         this.tiles.push(height);
     }
 
     next()
     {
-        this.tiles.shift();
-        this.generate();
+        this.offset++;
+
+        if (this.offset > this.blockWidth)
+        {
+            this.tiles.shift();
+            this.generate();
+            this.offset-=this.blockWidth;
+        }
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = TileGenerator;
@@ -154,11 +161,11 @@ class TileRenderer
     render(ctx)
     {
         ctx.beginPath();
-        ctx.moveTo(0, this.tileGenerator.tiles[0] * this.tileGenerator.BLOCK_HEIGHT);
+        ctx.moveTo(0, this.tileGenerator.tiles[0] * this.tileGenerator.blockHeight);
 
         this.tileGenerator.tiles.forEach((height, i) => {
-            let x = i * this.tileGenerator.BLOCK_WIDTH - this.tileGenerator.offset;
-            let y = window.innerHeight - (height * this.tileGenerator.BLOCK_HEIGHT);
+            let x = i * this.tileGenerator.blockWidth - this.tileGenerator.offset;
+            let y = window.innerHeight - (height * this.tileGenerator.blockHeight);
             ctx.lineTo(x, y);
         });
 
@@ -175,18 +182,60 @@ class TileRenderer
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+class PingDisplay
+{
+    constructor()
+    {
+        this.x = window.innerWidth - 325;
+        this.y = 20;
+        this.lastCheckTime = null;
+        this.latency = 'TBA';
+
+        window.addEventListener('resize', () => {
+            this.x = window.innerWidth - 325;
+        });
+    }
+
+    update()
+    {
+        let now = Date.now();
+        if (this.lastCheckTime)
+        {
+            this.latency = Math.max(15, now - this.lastCheckTime);
+        }
+
+        this.lastCheckTime = now;
+    }
+
+    render(canvasHelper)
+    {
+        canvasHelper.context.font      = '15px Courier';
+        canvasHelper.context.fillStyle = '#FFF';
+        canvasHelper.context.fillText(this.latency, this.x, this.y);
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = PingDisplay;
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__models_CanvasHelper__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__models_ambient_Background__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__models_Floor__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__controllers_Controller__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__models_ambient_Music__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__models_server_Socket__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__models_server_SocketHandler__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__models_utils_UserRenderer__ = __webpack_require__(15);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__models_server_Messagebox__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__models_NameGenerator__ = __webpack_require__(17);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__models_ambient_FullScreen__ = __webpack_require__(18);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__models_CanvasHelper__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__models_ambient_Background__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__models_Floor__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__controllers_Controller__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__models_ambient_Music__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__models_server_Socket__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__models_server_SocketHandler__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__models_utils_UserRenderer__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__models_server_Messagebox__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__models_NameGenerator__ = __webpack_require__(18);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__models_ambient_FullScreen__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__models_utils_PingDisplay__ = __webpack_require__(3);
+
 
 
 
@@ -204,21 +253,24 @@ new __WEBPACK_IMPORTED_MODULE_10__models_ambient_FullScreen__["a" /* FullScreen 
 
 let nameGenerator = new __WEBPACK_IMPORTED_MODULE_9__models_NameGenerator__["a" /* NameGenerator */]();
 let canvasHelper  = new __WEBPACK_IMPORTED_MODULE_0__models_CanvasHelper__["a" /* CanvasHelper */]();
+let pingDisplay   = new __WEBPACK_IMPORTED_MODULE_11__models_utils_PingDisplay__["a" /* PingDisplay */]();
+
 let background    = new __WEBPACK_IMPORTED_MODULE_1__models_ambient_Background__["a" /* Background */]();
 let floor         = new __WEBPACK_IMPORTED_MODULE_2__models_Floor__["a" /* Floor */]();
 let userRenderer  = new __WEBPACK_IMPORTED_MODULE_7__models_utils_UserRenderer__["a" /* UserRenderer */]();
-let socket        = new __WEBPACK_IMPORTED_MODULE_5__models_server_Socket__["a" /* Socket */](new __WEBPACK_IMPORTED_MODULE_6__models_server_SocketHandler__["a" /* SocketHandler */](canvasHelper, userRenderer, floor.floorGenerator, nameGenerator, background));
+let socket        = new __WEBPACK_IMPORTED_MODULE_5__models_server_Socket__["a" /* Socket */](new __WEBPACK_IMPORTED_MODULE_6__models_server_SocketHandler__["a" /* SocketHandler */](canvasHelper, userRenderer, floor.floorGenerator, nameGenerator, background, pingDisplay));
 socket.setController(new __WEBPACK_IMPORTED_MODULE_3__controllers_Controller__["a" /* Controller */]());
 
 canvasHelper.add(background);
 canvasHelper.add(floor);
 canvasHelper.add(userRenderer);
+canvasHelper.add(pingDisplay);
 
 let name = nameGenerator.get();
 let connect = () => {
     socket.join(name, () => {
         new __WEBPACK_IMPORTED_MODULE_8__models_server_Messagebox__["a" /* MessageBox */](nameGenerator, socket);
-    
+
         canvasHelper.render();
     }, () => {
         console.error(`Failed to connect with ${name}`);
@@ -231,14 +283,16 @@ let connect = () => {
 connect();
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils_Palette__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils_Palette__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_TickHelper__ = __webpack_require__(0);
 
 
+
+const FILTER = 'brightness(90%)';
 
 class CanvasHelper
 {
@@ -261,9 +315,11 @@ class CanvasHelper
             this.COLOR = this.palette.next();
         });
 
+        this.context.filter      = FILTER;
         window.addEventListener('resize', () => {
             this.canvas.width  = window.innerWidth;
             this.canvas.height = window.innerHeight;
+            this.context.filter = FILTER;
         });
     }
 
@@ -289,6 +345,7 @@ class CanvasHelper
 
         this.context.fillStyle = this.COLOR.BACKGROUND;
         this.context.fillRect(0, 0, window.innerWidth, window.innerHeight);
+
         this.items.forEach((x, i) => {
             if (x.removed)
             {
@@ -307,7 +364,7 @@ class CanvasHelper
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -360,13 +417,13 @@ class Palette
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils_TileGenerator__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_TileRenderer__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Star__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Star__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__utils_TickHelper__ = __webpack_require__(0);
 
 
@@ -377,7 +434,7 @@ class Background
 {
     constructor()
     {
-        this.tileGenerator = new __WEBPACK_IMPORTED_MODULE_0__utils_TileGenerator__["a" /* TileGenerator */](150, 80, 50, 4, 9);
+        this.tileGenerator = new __WEBPACK_IMPORTED_MODULE_0__utils_TileGenerator__["a" /* TileGenerator */](150, 80, 50, 4, 9, true);
         this.tileGenerator.populate();
 
         this.backgroundRenderer = new __WEBPACK_IMPORTED_MODULE_1__utils_TileRenderer__["a" /* TileRenderer */](this.tileGenerator);
@@ -417,7 +474,7 @@ class Background
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -462,7 +519,7 @@ class Star
 
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -490,11 +547,11 @@ class Floor
 
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__models_utils_Tween__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__models_utils_Tween__ = __webpack_require__(11);
 
 
 class Controller
@@ -539,7 +596,7 @@ class Controller
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -576,7 +633,7 @@ class Tween
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -602,7 +659,7 @@ class Music
 
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -632,6 +689,13 @@ class Socket
 
         if (data.players)
         {
+            data.players.forEach(x => {
+                if (x.id == this.io.id)
+                {
+                    x.owned = true;
+                }
+            });
+
             this.handler.onPlayers(this.io, data);
         }
     }
@@ -671,22 +735,25 @@ class Socket
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__InfoDisplay__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__InfoDisplay__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_PingDisplay__ = __webpack_require__(3);
+
 
 
 class SocketHandler
 {
-    constructor(canvasHelper, userRenderer, floorGenerator, nameGenerator, background)
+    constructor(canvasHelper, userRenderer, floorGenerator, nameGenerator, background, pingDisplay)
     {
         this.canvasHelper   = canvasHelper;
         this.userRenderer   = userRenderer;
         this.floorGenerator = floorGenerator;
         this.nameGenerator  = nameGenerator;
         this.background     = background;
+        this.pingDisplay    = pingDisplay;
         this.infoDisplay    = new __WEBPACK_IMPORTED_MODULE_0__InfoDisplay__["a" /* InfoDisplay */]();
     }
 
@@ -700,10 +767,13 @@ class SocketHandler
     {
         this.floorGenerator.tiles  = data.floors;
         this.floorGenerator.offset = data.offset;
+
+        this.background.tileGenerator.next();
     }
 
     onSyncTick()
     {
+        this.pingDisplay.update();
         this.userRenderer.players.forEach(x => {
             x.score++;
 
@@ -735,7 +805,7 @@ class SocketHandler
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -808,12 +878,14 @@ class InfoDisplay
 
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 const USER_WIDTH  = 30;
 const USER_HEIGHT = 30;
+
+const OPPONENTS_ALPHA = 0.7;
 
 class UserRenderer
 {
@@ -837,12 +909,20 @@ class UserRenderer
 
     render(canvasHelper)
     {
+        let alpha = canvasHelper.context.globalAlpha;
+        canvasHelper.context.globalAlpha = OPPONENTS_ALPHA;
         this.players.forEach(player => {
             let dx = player.position.x - USER_WIDTH/2;
             let dy = window.innerHeight - player.position.y;
 
             canvasHelper.context.fillStyle = canvasHelper.COLOR.USER;
             canvasHelper.context.font      = '20px Courier';
+
+            if (player.owned)
+            {
+                canvasHelper.context.globalAlpha = alpha;
+            }
+
             if (player.angle && !player.isJumping)
             {
                 canvasHelper.context.save();
@@ -858,14 +938,20 @@ class UserRenderer
                 canvasHelper.context.fillRect(dx, dy, USER_WIDTH, -USER_HEIGHT);
                 this.renderScore(canvasHelper, player);
             }
+
+            if (player.owned)
+            {
+                canvasHelper.context.globalAlpha = OPPONENTS_ALPHA;
+            }
         });
+        canvasHelper.context.globalAlpha = alpha;
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = UserRenderer;
 
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -925,7 +1011,7 @@ class MessageBox
 
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -976,7 +1062,7 @@ class NameGenerator
 
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

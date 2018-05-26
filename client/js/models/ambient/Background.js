@@ -7,7 +7,7 @@ export class Background
 {
     constructor()
     {
-        this.tileGenerator = new TileGenerator(150, 80, 50, 4, 9);
+        this.tileGenerator = new TileGenerator(150, 80, 50, 4, 9, true);
         this.tileGenerator.populate();
 
         this.backgroundRenderer = new TileRenderer(this.tileGenerator);

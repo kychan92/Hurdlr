@@ -8,11 +8,11 @@ export class TileRenderer
     render(ctx)
     {
         ctx.beginPath();
-        ctx.moveTo(0, this.tileGenerator.tiles[0] * this.tileGenerator.BLOCK_HEIGHT);
+        ctx.moveTo(0, this.tileGenerator.tiles[0] * this.tileGenerator.blockHeight);
 
         this.tileGenerator.tiles.forEach((height, i) => {
-            let x = i * this.tileGenerator.BLOCK_WIDTH - this.tileGenerator.offset;
-            let y = window.innerHeight - (height * this.tileGenerator.BLOCK_HEIGHT);
+            let x = i * this.tileGenerator.blockWidth - this.tileGenerator.offset;
+            let y = window.innerHeight - (height * this.tileGenerator.blockHeight);
             ctx.lineTo(x, y);
         });
 

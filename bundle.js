@@ -84,6 +84,10 @@ class ScoreHandler
             let p = this.top5.find(y => y.name == x.name);
             if (p)
             {
+                if (p.score < x.score)
+                {
+                    p.score = x.score;
+                }
                 return;
             }
 

@@ -1,6 +1,8 @@
 const USER_WIDTH  = 30;
 const USER_HEIGHT = 30;
 
+const OPPONENTS_ALPHA = 0.7;
+
 export class UserRenderer
 {
     constructor()
@@ -23,12 +25,20 @@ export class UserRenderer
 
     render(canvasHelper)
     {
+        let alpha = canvasHelper.context.globalAlpha;
+        canvasHelper.context.globalAlpha = OPPONENTS_ALPHA;
         this.players.forEach(player => {
             let dx = player.position.x - USER_WIDTH/2;
             let dy = window.innerHeight - player.position.y;
 
             canvasHelper.context.fillStyle = canvasHelper.COLOR.USER;
             canvasHelper.context.font      = '20px Courier';
+
+            if (player.owned)
+            {
+                canvasHelper.context.globalAlpha = alpha;
+            }
+
             if (player.angle && !player.isJumping)
             {
                 canvasHelper.context.save();
@@ -44,6 +54,12 @@ export class UserRenderer
                 canvasHelper.context.fillRect(dx, dy, USER_WIDTH, -USER_HEIGHT);
                 this.renderScore(canvasHelper, player);
             }
+
+            if (player.owned)
+            {
+                canvasHelper.context.globalAlpha = OPPONENTS_ALPHA;
+            }
         });
+        canvasHelper.context.globalAlpha = alpha;
     }
 }
