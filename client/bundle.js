@@ -829,6 +829,7 @@ class InfoDisplay
 
     createTop5()
     {
+        this.top5.sort((a, b) => a.score < b.score);
         let div = document.createElement('div');
         div.className = 'top5';
 

@@ -101,7 +101,6 @@ class ScoreHandler
             let pi = this.top5.findIndex(y => y.score < x.score);
             if (pi !== -1)
             {
-                console.log(pi);
                 this.top5.splice(pi, 1, x);
                 this.updated = true;
             }
