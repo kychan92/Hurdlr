@@ -10,7 +10,7 @@ export class TileGenerator
         this.maxBlockHeight = maxBlockHeight;
 
         this.locations = [];
-        this.offset    = 0;
+        this.offset    = Math.round(Math.random() * 300);
 
         this.populate();
     }

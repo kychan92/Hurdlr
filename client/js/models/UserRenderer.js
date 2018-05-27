@@ -36,7 +36,13 @@ export class UserRenderer
             if (player.owned)
             {
                 canvasHelper.context.globalAlpha = alpha;
-            }
+
+                let lightPower = Math.min(player.velocityX, 150);
+                if (lightPower < 0) lightPower *= -1;
+                canvasHelper.context.shadowBlur  = lightPower;
+
+                canvasHelper.context.shadowColor = '#FFF';
+        }
 
             if (player.angle && !player.isJumping)
             {
@@ -57,6 +63,7 @@ export class UserRenderer
             if (player.owned)
             {
                 canvasHelper.context.globalAlpha = OPPONENTS_ALPHA;
+                canvasHelper.context.shadowBlur  = 0;
             }
         });
         canvasHelper.context.globalAlpha = alpha;

@@ -39,7 +39,7 @@ export class PlayerManager
                 x.reset();
             }
 
-            if (!x.position.proximates(position, 0.01))
+            if (!x.position.proximates(position, 0.005))
             {
                 this.updated = true;
             }
