@@ -1,8 +1,8 @@
 export class Socket
 {
-    constructor(handler)
+    constructor(socketController)
     {
-        this.handler = handler;
+        this.socketController = socketController;
 
         this.io = io((window.location.href.indexOf('localhost') !== -1) ? 'http://localhost:8080' : 'http://hurdlr-hurdlr.a3c1.starter-us-west-1.openshiftapps.com');
         this.io.on('update', data => this.onUpdate(data));
@@ -10,16 +10,16 @@ export class Socket
 
     onUpdate(data)
     {
-        this.handler.onSyncTick();
+        this.socketController.onSyncTick();
 
         if (data.top5)
         {
-            this.handler.onScore(this.io, data);
+            this.socketController.onScore(this.io, data);
         }
 
         if (data.locations)
         {
-            this.handler.onFloor(this.io, data);
+            this.socketController.onFloor(this.io, data);
         }
 
         if (data.players)
@@ -31,7 +31,7 @@ export class Socket
                 }
             });
 
-            this.handler.onPlayers(this.io, data);
+            this.socketController.onPlayers(this.io, data);
         }
     }
 
@@ -47,7 +47,7 @@ export class Socket
             if (data.result)
             {
                 this.uptime = data.uptime;
-                this.handler.onHandshake(this.io, data);
+                this.socketController.onHandshake(this.io, data);
                 successCallback(data);
             }
             else
