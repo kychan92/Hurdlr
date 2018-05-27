@@ -1,15 +1,15 @@
-import { InfoDisplay } from "./InfoDisplay";
+import { InfoDisplay }    from "./InfoDisplay";
 
 export class SocketController
 {
     constructor(canvasHelper, userRenderer, environment, nameHelper, pingDisplay)
     {
-        this.canvasHelper = canvasHelper;
-        this.userRenderer = userRenderer;
-        this.environment  = environment;
-        this.nameHelper   = nameHelper;
-        this.pingDisplay  = pingDisplay;
-        this.infoDisplay  = new InfoDisplay();
+        this.canvasHelper   = canvasHelper;
+        this.userRenderer   = userRenderer;
+        this.environment    = environment;
+        this.nameHelper     = nameHelper;
+        this.pingDisplay    = pingDisplay;
+        this.infoDisplay    = new InfoDisplay();
     }
 
     onScore(socket, data)
@@ -35,6 +35,7 @@ export class SocketController
                 top5Player.score = x.score;
             }
         });
+
         this.infoDisplay.draw();
     }
 

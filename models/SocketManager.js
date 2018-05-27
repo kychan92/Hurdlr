@@ -4,7 +4,7 @@ export class SocketManager
     {
         this.io               = require('socket.io')(app);
         this.socketController = socketController;
-    
+
         this.io.on('connection', socket => this.onConnect(socket));
     }
 

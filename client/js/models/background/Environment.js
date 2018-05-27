@@ -26,7 +26,9 @@ export class Environment
 
     render(canvasHelper)
     {
+        canvasHelper.context.filter = 'blur(3px)';
         this.ambientStars.render(canvasHelper);
+        canvasHelper.context.filter = 'none';
 
         this.terrain.render(canvasHelper);
 

@@ -17,7 +17,7 @@ export class Terrain
 
             new TileGenerator(215, 100, 50, 3, 6, 50),
             new TileGenerator(165, 90, 50, 3, 5, 50),
-            new TileGenerator(95, 105, 50, 3, 5, 50),
+            new TileGenerator(145, 105, 50, 3, 5, 50),
 
             new TileGenerator(255, 100, 50, 3, 5, 50),
             new TileGenerator(205, 120, 50, 3, 4, 50),

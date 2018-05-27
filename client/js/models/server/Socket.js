@@ -35,12 +35,6 @@ export class Socket
         }
     }
 
-    setController(controller)
-    {
-        this.controller        = controller;
-        this.controller.socket = this;
-    }
-
     join(name, successCallback, failedCallback)
     {
         this.io.on('handshake', (data) => {

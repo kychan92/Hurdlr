@@ -3,7 +3,7 @@ import { FullScreenHelper } from "./models/utils/FullScreenHelper";
 import { Environment }      from "./models/background/Environment";
 import { UserRenderer }     from "./models/UserRenderer";
 import { CanvasHelper }     from "./models/CanvasHelper";
-import { Controller }       from "./controllers/Controller";
+import { UserController }   from "./controllers/UserController";
 import { Music }            from "./models/effects/Music";
 
 import { Socket }           from "./models/server/Socket";
@@ -17,7 +17,6 @@ new FullScreenHelper();
 let nameHelper    = new NameHelper();
 let canvasHelper  = new CanvasHelper();
 let pingDisplay   = new PingDisplay();
-let controller    = new Controller();
 
 let environment   = new Environment();
 let userRenderer  = new UserRenderer();
@@ -26,8 +25,8 @@ let socket        = new Socket(new SocketController(canvasHelper,
                                                     environment,
                                                     nameHelper,
                                                     pingDisplay));
+let controller    = new UserController(socket);
 
-socket.setController(controller);
 canvasHelper.add(environment);
 canvasHelper.add(userRenderer);
 canvasHelper.add(pingDisplay);

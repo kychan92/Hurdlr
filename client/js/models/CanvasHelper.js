@@ -25,6 +25,10 @@ export class CanvasHelper
             this.canvas.height  = window.innerHeight;
             this.context.filter = FILTER;
         });
+
+        window.addEventListener('focus', () => {
+            this.canvas.focus();
+        });
     }
 
     add(item)

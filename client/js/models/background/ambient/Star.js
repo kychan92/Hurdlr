@@ -1,4 +1,6 @@
-const SPEED = 5;
+const SPEED     = 5;
+const SIZE      = 8;
+const MIN_ANGLE = Math.PI + (Math.PI * 0.25);
 
 export class Star
 {
@@ -6,7 +8,7 @@ export class Star
     {
         this.x     = Math.random() * window.innerWidth;
         this.y     = 0;
-        this.angle = Math.PI + (Math.random() * Math.PI / 2);
+        this.angle = MIN_ANGLE + (Math.random() * (Math.PI * 0.5));
     }
 
     step()
@@ -23,7 +25,7 @@ export class Star
     render(canvasHelper)
     {
         canvasHelper.context.fillStyle = canvasHelper.color.STARS;
-        canvasHelper.context.fillRect(this.x, this.y, 3, 3);
+        canvasHelper.context.fillRect(this.x, this.y, SIZE, SIZE);
     }
 
     outOfBounds()

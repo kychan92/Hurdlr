@@ -1,8 +1,9 @@
-export class Controller
+export class UserController
 {
-    constructor()
+    constructor(socket)
     {
-        this.keys = [];
+        this.keys   = [];
+        this.socket = socket;
 
         document.body.addEventListener('keydown', (event) => this.onKey(true,  event));
         document.body.addEventListener('keyup',   (event) => this.onKey(false, event));

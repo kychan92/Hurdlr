@@ -132,7 +132,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__models_background_Environment__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__models_UserRenderer__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__models_CanvasHelper__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__controllers_Controller__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__controllers_UserController__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__models_effects_Music__ = __webpack_require__(15);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__models_server_Socket__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__models_server_SocketController__ = __webpack_require__(17);
@@ -157,7 +157,6 @@ new __WEBPACK_IMPORTED_MODULE_1__models_utils_FullScreenHelper__["a" /* FullScre
 let nameHelper    = new __WEBPACK_IMPORTED_MODULE_0__models_utils_NameHelper__["a" /* NameHelper */]();
 let canvasHelper  = new __WEBPACK_IMPORTED_MODULE_4__models_CanvasHelper__["a" /* CanvasHelper */]();
 let pingDisplay   = new __WEBPACK_IMPORTED_MODULE_10__models_server_PingDisplay__["a" /* PingDisplay */]();
-let controller    = new __WEBPACK_IMPORTED_MODULE_5__controllers_Controller__["a" /* Controller */]();
 
 let environment   = new __WEBPACK_IMPORTED_MODULE_2__models_background_Environment__["a" /* Environment */]();
 let userRenderer  = new __WEBPACK_IMPORTED_MODULE_3__models_UserRenderer__["a" /* UserRenderer */]();
@@ -166,8 +165,8 @@ let socket        = new __WEBPACK_IMPORTED_MODULE_7__models_server_Socket__["a" 
                                                     environment,
                                                     nameHelper,
                                                     pingDisplay));
+let controller    = new __WEBPACK_IMPORTED_MODULE_5__controllers_UserController__["a" /* UserController */](socket);
 
-socket.setController(controller);
 canvasHelper.add(environment);
 canvasHelper.add(userRenderer);
 canvasHelper.add(pingDisplay);
@@ -314,7 +313,9 @@ class Environment
 
     render(canvasHelper)
     {
+        canvasHelper.context.filter = 'blur(3px)';
         this.ambientStars.render(canvasHelper);
+        canvasHelper.context.filter = 'none';
 
         this.terrain.render(canvasHelper);
 
@@ -351,7 +352,7 @@ class Terrain
 
             new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](215, 100, 50, 3, 6, 50),
             new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](165, 90, 50, 3, 5, 50),
-            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](95, 105, 50, 3, 5, 50),
+            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](145, 105, 50, 3, 5, 50),
 
             new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](255, 100, 50, 3, 5, 50),
             new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](205, 120, 50, 3, 4, 50),
@@ -502,7 +503,9 @@ class AmbientStars
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-const SPEED = 5;
+const SPEED     = 5;
+const SIZE      = 8;
+const MIN_ANGLE = Math.PI + (Math.PI * 0.25);
 
 class Star
 {
@@ -510,7 +513,7 @@ class Star
     {
         this.x     = Math.random() * window.innerWidth;
         this.y     = 0;
-        this.angle = Math.PI + (Math.random() * Math.PI / 2);
+        this.angle = MIN_ANGLE + (Math.random() * (Math.PI * 0.5));
     }
 
     step()
@@ -527,7 +530,7 @@ class Star
     render(canvasHelper)
     {
         canvasHelper.context.fillStyle = canvasHelper.color.STARS;
-        canvasHelper.context.fillRect(this.x, this.y, 3, 3);
+        canvasHelper.context.fillRect(this.x, this.y, SIZE, SIZE);
     }
 
     outOfBounds()
@@ -671,6 +674,10 @@ class CanvasHelper
             this.canvas.height  = window.innerHeight;
             this.context.filter = FILTER;
         });
+
+        window.addEventListener('focus', () => {
+            this.canvas.focus();
+        });
     }
 
     add(item)
@@ -740,11 +747,12 @@ class PaletteHelper
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-class Controller
+class UserController
 {
-    constructor()
+    constructor(socket)
     {
-        this.keys = [];
+        this.keys   = [];
+        this.socket = socket;
 
         document.body.addEventListener('keydown', (event) => this.onKey(true,  event));
         document.body.addEventListener('keyup',   (event) => this.onKey(false, event));
@@ -789,7 +797,7 @@ class Controller
         });
     }
 }
-/* harmony export (immutable) */ __webpack_exports__["a"] = Controller;
+/* harmony export (immutable) */ __webpack_exports__["a"] = UserController;
 
 
 /***/ }),
@@ -864,12 +872,6 @@ class Socket
         }
     }
 
-    setController(controller)
-    {
-        this.controller        = controller;
-        this.controller.socket = this;
-    }
-
     join(name, successCallback, failedCallback)
     {
         this.io.on('handshake', (data) => {
@@ -910,12 +912,12 @@ class SocketController
 {
     constructor(canvasHelper, userRenderer, environment, nameHelper, pingDisplay)
     {
-        this.canvasHelper = canvasHelper;
-        this.userRenderer = userRenderer;
-        this.environment  = environment;
-        this.nameHelper   = nameHelper;
-        this.pingDisplay  = pingDisplay;
-        this.infoDisplay  = new __WEBPACK_IMPORTED_MODULE_0__InfoDisplay__["a" /* InfoDisplay */]();
+        this.canvasHelper   = canvasHelper;
+        this.userRenderer   = userRenderer;
+        this.environment    = environment;
+        this.nameHelper     = nameHelper;
+        this.pingDisplay    = pingDisplay;
+        this.infoDisplay    = new __WEBPACK_IMPORTED_MODULE_0__InfoDisplay__["a" /* InfoDisplay */]();
     }
 
     onScore(socket, data)
@@ -941,6 +943,7 @@ class SocketController
                 top5Player.score = x.score;
             }
         });
+
         this.infoDisplay.draw();
     }
 

@@ -395,7 +395,7 @@ class SocketManager
     {
         this.io               = __webpack_require__(10)(app);
         this.socketController = socketController;
-    
+
         this.io.on('connection', socket => this.onConnect(socket));
     }
 
