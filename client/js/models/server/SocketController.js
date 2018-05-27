@@ -1,16 +1,15 @@
 import { InfoDisplay } from "./InfoDisplay";
 
-export class SocketHandler
+export class SocketController
 {
-    constructor(canvasHelper, userRenderer, floorGenerator, nameGenerator, background, pingDisplay)
+    constructor(canvasHelper, userRenderer, environment, nameHelper, pingDisplay)
     {
-        this.canvasHelper   = canvasHelper;
-        this.userRenderer   = userRenderer;
-        this.floorGenerator = floorGenerator;
-        this.nameGenerator  = nameGenerator;
-        this.background     = background;
-        this.pingDisplay    = pingDisplay;
-        this.infoDisplay    = new InfoDisplay();
+        this.canvasHelper = canvasHelper;
+        this.userRenderer = userRenderer;
+        this.environment  = environment;
+        this.nameHelper   = nameHelper;
+        this.pingDisplay  = pingDisplay;
+        this.infoDisplay  = new InfoDisplay();
     }
 
     onScore(socket, data)
@@ -21,10 +20,7 @@ export class SocketHandler
 
     onFloor(socket, data)
     {
-        this.floorGenerator.tiles  = data.floors;
-        this.floorGenerator.offset = data.offset;
-
-        this.background.tileGenerator.next();
+        this.environment.update(data);
     }
 
     onSyncTick()
@@ -52,7 +48,7 @@ export class SocketHandler
 
     onHandshake(socket, data)
     {
-        this.nameGenerator.save(data.name);
+        this.nameHelper.save(data.name);
         this.infoDisplay.name = data.name;
         this.infoDisplay.draw();
     }

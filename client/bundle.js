@@ -60,11 +60,41 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+class TileRenderer
+{
+    constructor()
+    {
+    }
+
+    render(canvasHelper, definition)
+    {
+        canvasHelper.context.beginPath();
+        canvasHelper.context.moveTo(0, definition.locations[0] * definition.blockHeight);
+
+        definition.locations.forEach((height, i) => {
+            let x = i * definition.blockWidth - definition.offset;
+            let y = window.innerHeight - (height * definition.blockHeight);
+            canvasHelper.context.lineTo(x, y);
+        });
+
+        canvasHelper.context.lineTo(window.innerWidth, window.innerHeight);
+        canvasHelper.context.lineTo(0, window.innerHeight);
+        canvasHelper.context.fill();
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = TileRenderer;
+
+
+/***/ }),
+/* 1 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -92,13 +122,293 @@ class TickHelper
 
 
 /***/ }),
-/* 1 */
+/* 2 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__models_utils_NameHelper__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__models_utils_FullScreenHelper__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__models_background_Environment__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__models_UserRenderer__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__models_CanvasHelper__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__controllers_Controller__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__models_effects_Music__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__models_server_Socket__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__models_server_SocketController__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__models_server_Messagebox__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__models_server_PingDisplay__ = __webpack_require__(20);
+
+
+
+
+
+
+
+
+
+
+
+
+
+new __WEBPACK_IMPORTED_MODULE_6__models_effects_Music__["a" /* Music */]();
+new __WEBPACK_IMPORTED_MODULE_1__models_utils_FullScreenHelper__["a" /* FullScreenHelper */]();
+
+let nameHelper    = new __WEBPACK_IMPORTED_MODULE_0__models_utils_NameHelper__["a" /* NameHelper */]();
+let canvasHelper  = new __WEBPACK_IMPORTED_MODULE_4__models_CanvasHelper__["a" /* CanvasHelper */]();
+let pingDisplay   = new __WEBPACK_IMPORTED_MODULE_10__models_server_PingDisplay__["a" /* PingDisplay */]();
+let controller    = new __WEBPACK_IMPORTED_MODULE_5__controllers_Controller__["a" /* Controller */]();
+
+let environment   = new __WEBPACK_IMPORTED_MODULE_2__models_background_Environment__["a" /* Environment */]();
+let userRenderer  = new __WEBPACK_IMPORTED_MODULE_3__models_UserRenderer__["a" /* UserRenderer */]();
+let socket        = new __WEBPACK_IMPORTED_MODULE_7__models_server_Socket__["a" /* Socket */](new __WEBPACK_IMPORTED_MODULE_8__models_server_SocketController__["a" /* SocketController */](canvasHelper,
+                                                    userRenderer,
+                                                    environment,
+                                                    nameHelper,
+                                                    pingDisplay));
+
+socket.setController(controller);
+canvasHelper.add(environment);
+canvasHelper.add(userRenderer);
+canvasHelper.add(pingDisplay);
+
+let name = nameHelper.get();
+let connect = () => {
+    socket.join(name, () => {
+        new __WEBPACK_IMPORTED_MODULE_9__models_server_Messagebox__["a" /* MessageBox */](nameHelper, socket);
+
+        canvasHelper.render();
+    }, () => {
+        console.error(`Failed to connect with ${name}`);
+
+        nameHelper.generateName();
+        name = nameHelper.name;
+
+        connect();
+    });
+}
+
+connect();
+
+/***/ }),
+/* 3 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+class NameHelper
+{
+    constructor()
+    {
+        this.generateName();
+    }
+
+    get()
+    {
+        if (localStorage)
+        {
+            let name = localStorage.getItem('name');
+            if (name)
+            {
+                this.name = name;
+                return name;
+            }
+
+            this.save(this.name);
+
+            return this.name;
+        }
+
+        return this.name;
+    }
+
+    save(name)
+    {
+        if (localStorage)
+        {
+            localStorage.setItem('name', name);
+        }
+
+        this.name = name;
+    }
+
+    generateName()
+    {
+        this.name = 'player' + Math.floor(Math.random() * 100000).toString(16);
+
+        return name;
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = NameHelper;
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+class FullScreenHelper
+{
+    constructor()
+    {
+        document.body.addEventListener('click', () => this.request());
+    }
+
+    request()
+    {
+        // Supports most browsers and their versions.
+        var requestMethod = document.body.requestFullScreen       ||
+                            document.body.webkitRequestFullScreen ||
+                            document.body.mozRequestFullScreen    ||
+                            document.body.msRequestFullScreen;
+        if (requestMethod)
+        {
+            requestMethod.call(document.body);
+        }
+        else if (typeof window.ActiveXObject !== "undefined")
+        {
+            var wscript = new ActiveXObject("WScript.Shell");
+            if (wscript !== null)
+            {
+                wscript.SendKeys("{F11}");
+            }
+        }
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = FullScreenHelper;
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ambient_Terrain__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ambient_AmbientStars__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__FloorDefinition__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__TileRenderer__ = __webpack_require__(0);
+
+
+
+
+
+class Environment
+{
+    constructor()
+    {
+        this.floor        = new __WEBPACK_IMPORTED_MODULE_2__FloorDefinition__["a" /* FloorDefinition */]();
+        this.terrain      = new __WEBPACK_IMPORTED_MODULE_0__ambient_Terrain__["a" /* Terrain */]();
+        this.ambientStars = new __WEBPACK_IMPORTED_MODULE_1__ambient_AmbientStars__["a" /* AmbientStars */]();
+        this.tileRenderer = new __WEBPACK_IMPORTED_MODULE_3__TileRenderer__["a" /* TileRenderer */]();
+    }
+
+    update(data)
+    {
+        if (this.floor.offset != data.offset || this.floor.locations != data.locations)
+        {
+            this.floor.locations = data.locations;
+            this.floor.offset    = data.offset;
+
+            this.terrain.update();
+        }
+    }
+
+    render(canvasHelper)
+    {
+        this.ambientStars.render(canvasHelper);
+
+        this.terrain.render(canvasHelper);
+
+        canvasHelper.context.fillStyle = canvasHelper.color.FLOOR;
+        this.tileRenderer.render(canvasHelper, this.floor);
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = Environment;
+
+
+/***/ }),
+/* 6 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__TileGenerator__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__TileRenderer__ = __webpack_require__(0);
+
+
+
+class Terrain
+{
+    constructor()
+    {
+        this.offset = 0;
+        this.hills  = [
+            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](255, 100, 50, 6, 9, 50),
+            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](205, 90, 50, 5, 8, 50),
+            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](135, 80, 50, 4, 8, 50),
+
+            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](235, 100, 50, 4, 7, 50),
+            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](175, 105, 50, 3, 6, 50),
+            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](105, 90, 50, 3, 6, 50),
+
+            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](215, 100, 50, 3, 6, 50),
+            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](165, 90, 50, 3, 5, 50),
+            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](95, 105, 50, 3, 5, 50),
+
+            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](255, 100, 50, 3, 5, 50),
+            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](205, 120, 50, 3, 4, 50),
+
+            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](245, 80, 50, 3, 5, 50)
+        ];
+
+        this.renderer = new __WEBPACK_IMPORTED_MODULE_1__TileRenderer__["a" /* TileRenderer */]();
+    }
+
+    update()
+    {
+        this.hills.forEach(x => {
+            x.next();
+        });
+    }
+
+    render(canvasHelper)
+    {
+        canvasHelper.context.filter = 'blur(2px)';
+        canvasHelper.context.fillStyle = canvasHelper.color.HILLS_FAR;
+        this.renderer.render(canvasHelper, this.hills[0]);
+        this.renderer.render(canvasHelper, this.hills[1]);
+        this.renderer.render(canvasHelper, this.hills[2]);
+
+        canvasHelper.context.fillStyle = canvasHelper.color.HILLS_FAR_NEAR;
+        this.renderer.render(canvasHelper, this.hills[3]);
+        this.renderer.render(canvasHelper, this.hills[4]);
+        this.renderer.render(canvasHelper, this.hills[5]);
+
+        canvasHelper.context.fillStyle = canvasHelper.color.HILLS_NEAR;
+        this.renderer.render(canvasHelper, this.hills[6]);
+        this.renderer.render(canvasHelper, this.hills[7]);
+        this.renderer.render(canvasHelper, this.hills[8]);
+
+        canvasHelper.context.fillStyle = canvasHelper.color.HILLS_NEAR_CLOSE;
+        this.renderer.render(canvasHelper, this.hills[9]);
+        this.renderer.render(canvasHelper, this.hills[10]);
+
+        canvasHelper.context.filter = 'blur(1px)';
+        canvasHelper.context.fillStyle = canvasHelper.color.HILLS_CLOSE;
+        this.renderer.render(canvasHelper, this.hills[11]);
+
+        canvasHelper.context.filter = 'none';
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = Terrain;
+
+
+/***/ }),
+/* 7 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 class TileGenerator
 {
-    constructor(blockWidth, blockHeight, maxBlocks, minBlockHeight, maxBlockHeight, noFlats)
+    constructor(blockWidth, blockHeight, maxBlocks, minBlockHeight, maxBlockHeight)
     {
         this.blockWidth     = blockWidth;
         this.blockHeight    = blockHeight;
@@ -106,10 +416,11 @@ class TileGenerator
         this.angle          = Math.atan2(blockHeight, blockWidth);
         this.minBlockHeight = minBlockHeight;
         this.maxBlockHeight = maxBlockHeight;
-        this.noFlats        = noFlats;
 
-        this.tiles  = [];
-        this.offset = 0;
+        this.locations = [];
+        this.offset    = 0;
+
+        this.populate();
     }
 
     populate()
@@ -122,13 +433,13 @@ class TileGenerator
 
     generate()
     {
-        let height = (this.tiles.length > 0) ? this.tiles[this.tiles.length - 1] : this.minBlockHeight;
+        let height = (this.locations.length > 0) ? this.locations[this.locations.length - 1] : this.minBlockHeight;
         height    += (Math.random() > .5) ? 1 : -1;
 
-        if (height > this.maxBlockHeight) height = (this.noFlats) ? this.maxBlockHeight - 1 : this.maxBlockHeight;
-        if (height < this.minBlockHeight) height = (this.noFlats) ? this.minBlockHeight + 1 : this.minBlockHeight;
+        if (height > this.maxBlockHeight) height = this.maxBlockHeight - 1;
+        if (height < this.minBlockHeight) height = this.minBlockHeight + 1;
 
-        this.tiles.push(height);
+        this.locations.push(height);
     }
 
     next()
@@ -137,7 +448,7 @@ class TileGenerator
 
         if (this.offset > this.blockWidth)
         {
-            this.tiles.shift();
+            this.locations.shift();
             this.generate();
             this.offset-=this.blockWidth;
         }
@@ -147,115 +458,192 @@ class TileGenerator
 
 
 /***/ }),
-/* 2 */
+/* 8 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-class TileRenderer
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils_TickHelper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Star__ = __webpack_require__(9);
+
+
+
+class AmbientStars
 {
-    constructor(tileGenerator)
+    constructor()
     {
-        this.tileGenerator = tileGenerator;
-    }
+        this.stars = [];
 
-    render(ctx)
-    {
-        ctx.beginPath();
-        ctx.moveTo(0, this.tileGenerator.tiles[0] * this.tileGenerator.blockHeight);
-
-        this.tileGenerator.tiles.forEach((height, i) => {
-            let x = i * this.tileGenerator.blockWidth - this.tileGenerator.offset;
-            let y = window.innerHeight - (height * this.tileGenerator.blockHeight);
-            ctx.lineTo(x, y);
+        this.starTicker = new __WEBPACK_IMPORTED_MODULE_0__utils_TickHelper__["a" /* TickHelper */](25, () => {
+            this.stars.push(new __WEBPACK_IMPORTED_MODULE_1__Star__["a" /* Star */]());
         });
+    }
 
-        ctx.lineTo(window.innerWidth, window.innerHeight);
-        ctx.lineTo(0, window.innerHeight);
-        ctx.fill();
+    render(canvasHelper)
+    {
+        this.starTicker.tick();
+
+        this.stars.forEach((x, i) => {
+            if (x.removed)
+            {
+                this.stars.splice(i, 1);
+                return;
+            }
+
+            x.step();
+            x.render(canvasHelper);
+        });
     }
 }
-/* harmony export (immutable) */ __webpack_exports__["a"] = TileRenderer;
+/* harmony export (immutable) */ __webpack_exports__["a"] = AmbientStars;
 
 
 /***/ }),
-/* 3 */
+/* 9 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__models_CanvasHelper__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__models_ambient_Background__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__models_Floor__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__controllers_Controller__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__models_ambient_Music__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__models_server_Socket__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__models_server_SocketHandler__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__models_utils_UserRenderer__ = __webpack_require__(14);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__models_server_Messagebox__ = __webpack_require__(15);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__models_NameGenerator__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__models_ambient_FullScreen__ = __webpack_require__(17);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__models_utils_PingDisplay__ = __webpack_require__(18);
+const SPEED = 5;
 
+class Star
+{
+    constructor()
+    {
+        this.x     = Math.random() * window.innerWidth;
+        this.y     = 0;
+        this.angle = Math.PI + (Math.random() * Math.PI / 2);
+    }
 
+    step()
+    {
+        this.x += Math.cos(this.angle) * SPEED;
+        this.y -= Math.sin(this.angle) * SPEED;
 
+        if (this.outOfBounds())
+        {
+            this.removed = true;
+        }
+    }
 
+    render(canvasHelper)
+    {
+        canvasHelper.context.fillStyle = canvasHelper.color.STARS;
+        canvasHelper.context.fillRect(this.x, this.y, 3, 3);
+    }
 
+    outOfBounds()
+    {
+        if (this.x < 0 || this.y < 0 || this.y > window.innerHeight)
+        {
+            return true;
+        }
 
-
-
-
-
-
-
-
-new __WEBPACK_IMPORTED_MODULE_4__models_ambient_Music__["a" /* Music */]();
-new __WEBPACK_IMPORTED_MODULE_10__models_ambient_FullScreen__["a" /* FullScreen */]();
-
-let nameGenerator = new __WEBPACK_IMPORTED_MODULE_9__models_NameGenerator__["a" /* NameGenerator */]();
-let canvasHelper  = new __WEBPACK_IMPORTED_MODULE_0__models_CanvasHelper__["a" /* CanvasHelper */]();
-let pingDisplay   = new __WEBPACK_IMPORTED_MODULE_11__models_utils_PingDisplay__["a" /* PingDisplay */]();
-
-let background    = new __WEBPACK_IMPORTED_MODULE_1__models_ambient_Background__["a" /* Background */]();
-let floor         = new __WEBPACK_IMPORTED_MODULE_2__models_Floor__["a" /* Floor */]();
-let userRenderer  = new __WEBPACK_IMPORTED_MODULE_7__models_utils_UserRenderer__["a" /* UserRenderer */]();
-let socket        = new __WEBPACK_IMPORTED_MODULE_5__models_server_Socket__["a" /* Socket */](new __WEBPACK_IMPORTED_MODULE_6__models_server_SocketHandler__["a" /* SocketHandler */](canvasHelper,
-                                                 userRenderer,
-                                                 floor.floorGenerator,
-                                                 nameGenerator,
-                                                 background,
-                                                 pingDisplay));
-
-socket.setController(new __WEBPACK_IMPORTED_MODULE_3__controllers_Controller__["a" /* Controller */]());
-canvasHelper.add(background);
-canvasHelper.add(floor);
-canvasHelper.add(userRenderer);
-canvasHelper.add(pingDisplay);
-
-let name = nameGenerator.get();
-let connect = () => {
-    socket.join(name, () => {
-        new __WEBPACK_IMPORTED_MODULE_8__models_server_Messagebox__["a" /* MessageBox */](nameGenerator, socket);
-
-        canvasHelper.render();
-    }, () => {
-        console.error(`Failed to connect with ${name}`);
-
-        nameGenerator.generateName();
-        name = nameGenerator.name;
-
-        connect();
-    });
+        return false;
+    }
 }
+/* harmony export (immutable) */ __webpack_exports__["a"] = Star;
 
-connect();
 
 /***/ }),
-/* 4 */
+/* 10 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils_Palette__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_TickHelper__ = __webpack_require__(0);
+class FloorDefinition
+{
+    constructor()
+    {
+        this.blockWidth     = 90;
+        this.blockHeight    = 40;
+        this.maxBlocks      = 100;
+        this.minBlockHeight = 2;
+        this.maxBlockHeight = 9;
+        this.angle          = Math.atan2(this.blockHeight, this.blockWidth);
+        this.offset         = 0;
+        this.locations      = [this.minBlockHeight];
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = FloorDefinition;
+
+
+/***/ }),
+/* 11 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+const USER_WIDTH      = 30;
+const USER_HEIGHT     = 30;
+const OPPONENTS_ALPHA = 0.6;
+
+class UserRenderer
+{
+    constructor()
+    {
+        this.players = [];
+    }
+
+    update(players)
+    {
+        this.players = players;
+    }
+
+    renderScore(canvasHelper, player)
+    {
+        canvasHelper.context.fillStyle = canvasHelper.color.TEXT;
+        canvasHelper.context.fillText(player.score,
+                                      player.position.x - ((player.score.toString().length / 2) * 14),
+                                      (window.innerHeight - player.position.y) - (USER_HEIGHT + 20));
+    }
+
+    render(canvasHelper)
+    {
+        let alpha = canvasHelper.context.globalAlpha;
+        canvasHelper.context.globalAlpha = OPPONENTS_ALPHA;
+        this.players.forEach(player => {
+            let dx = player.position.x - USER_WIDTH/2;
+            let dy = window.innerHeight - player.position.y;
+
+            canvasHelper.context.fillStyle = canvasHelper.color.USER;
+            canvasHelper.context.font      = '20px Courier';
+
+            if (player.owned)
+            {
+                canvasHelper.context.globalAlpha = alpha;
+            }
+
+            if (player.angle && !player.isJumping)
+            {
+                canvasHelper.context.save();
+                canvasHelper.context.translate(player.position.x, dy);
+                canvasHelper.context.rotate(-player.angle);
+                canvasHelper.context.translate(-player.position.x, -dy);
+                canvasHelper.context.fillRect(dx, dy, USER_WIDTH, -USER_HEIGHT);
+                this.renderScore(canvasHelper, player);
+                canvasHelper.context.restore();
+            }
+            else
+            {
+                canvasHelper.context.fillRect(dx, dy, USER_WIDTH, -USER_HEIGHT);
+                this.renderScore(canvasHelper, player);
+            }
+
+            if (player.owned)
+            {
+                canvasHelper.context.globalAlpha = OPPONENTS_ALPHA;
+            }
+        });
+        canvasHelper.context.globalAlpha = alpha;
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = UserRenderer;
+
+
+/***/ }),
+/* 12 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils_PaletteHelper__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_TickHelper__ = __webpack_require__(1);
 
 
 
@@ -273,14 +661,9 @@ class CanvasHelper
         this.canvas.width  = window.innerWidth;
         this.canvas.height = window.innerHeight;
 
-        this.palette = new __WEBPACK_IMPORTED_MODULE_0__utils_Palette__["a" /* Palette */]();
-        this.COLOR   = this.palette.next();
+        this.color = new __WEBPACK_IMPORTED_MODULE_0__utils_PaletteHelper__["a" /* PaletteHelper */]();
 
         document.body.appendChild(this.canvas);
-
-        this.paletteTicker = new __WEBPACK_IMPORTED_MODULE_1__utils_TickHelper__["a" /* TickHelper */](10000, () => {
-            this.COLOR = this.palette.next();
-        });
 
         this.context.filter = FILTER;
         window.addEventListener('resize', () => {
@@ -308,9 +691,7 @@ class CanvasHelper
 
     render()
     {
-        this.paletteTicker.tick();
-
-        this.context.fillStyle = this.COLOR.BACKGROUND;
+        this.context.fillStyle = this.color.BACKGROUND;
         this.context.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
         this.items.forEach((x, i) => {
@@ -331,185 +712,31 @@ class CanvasHelper
 
 
 /***/ }),
-/* 5 */
+/* 13 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-class Palette
+class PaletteHelper
 {
     constructor()
     {
-        this.palettes = [
-            {
-                BACKGROUND : '#bdeda8',
-                HILLS      : '#57ab8270',
-                FLOOR      : '#3c9179',
-                USER       : '#0025409a',
-                STARS      : '#FFF',
-                TEXT       : '#FFF'
-            },
-            {
-                BACKGROUND : '#832161',
-                HILLS      : '#da416788',
-                FLOOR      : '#f0eff4',
-                USER       : '#3d2645',
-                STARS      : '#d9bbf9',
-                TEXT       : '#FFF'
-            },
-            {
-                BACKGROUND : '#718f94',
-                HILLS      : '#90b49488',
-                FLOOR      : '#dbcfb0',
-                USER       : '#545775',
-                STARS      : '#d9bbf9',
-                TEXT       : '#FFF'
-            }
-        ];
-    }
-
-    next()
-    {
-        return this.palettes[ Math.floor(Math.random() * this.palettes.length) ];
+        this.BACKGROUND       = '#FDDAC6',
+        this.FLOOR            = '#2C0A2D',
+        this.USER             = '#FFFFFFEE',
+        this.STARS            = '#FFFFFF99',
+        this.TEXT             = '#FFFFFF99',
+        this.HILLS_FAR        = '#F97C5DCC',
+        this.HILLS_FAR_NEAR   = '#F55E43EE',
+        this.HILLS_NEAR       = '#F3463FF0',
+        this.HILLS_NEAR_CLOSE = '#BD1642F5',
+        this.HILLS_CLOSE      = '#760135FA'
     }
 }
-/* harmony export (immutable) */ __webpack_exports__["a"] = Palette;
+/* harmony export (immutable) */ __webpack_exports__["a"] = PaletteHelper;
 
 
 /***/ }),
-/* 6 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils_TileGenerator__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_TileRenderer__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Star__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__utils_TickHelper__ = __webpack_require__(0);
-
-
-
-
-
-class Background
-{
-    constructor()
-    {
-        this.tileGenerator = new __WEBPACK_IMPORTED_MODULE_0__utils_TileGenerator__["a" /* TileGenerator */](150, 150, 50, 1, 7, true);
-        this.tileGenerator.populate();
-
-        this.backgroundRenderer = new __WEBPACK_IMPORTED_MODULE_1__utils_TileRenderer__["a" /* TileRenderer */](this.tileGenerator);
-        this.stars              = [];
-
-        this.starTicker = new __WEBPACK_IMPORTED_MODULE_3__utils_TickHelper__["a" /* TickHelper */](25, () => {
-            this.stars.push(new __WEBPACK_IMPORTED_MODULE_2__Star__["a" /* Star */]());
-        });
-    }
-
-    renderAmbientStars(context)
-    {
-        this.stars.forEach((x, i) => {
-            if (x.removed)
-            {
-                this.stars.splice(i, 1);
-                return;
-            }
-
-            x.step();
-            x.render(context);
-        });
-    }
-
-    render(canvasHelper)
-    {
-        this.starTicker.tick();
-
-        canvasHelper.context.fillStyle = canvasHelper.COLOR.STARS;
-        this.renderAmbientStars(canvasHelper.context);
-        canvasHelper.context.fillStyle = canvasHelper.COLOR.HILLS;
-
-        let alpha = canvasHelper.context.globalAlpha;
-        canvasHelper.context.globalAlpha = 0.6;
-        this.backgroundRenderer.render(canvasHelper.context);
-        canvasHelper.context.globalAlpha = alpha;
-    }
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = Background;
-
-
-/***/ }),
-/* 7 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-const SPEED = 5;
-
-class Star
-{
-    constructor()
-    {
-        this.x     = Math.random() * window.innerWidth;
-        this.y     = 0;
-        this.angle = Math.PI + (Math.random() * Math.PI / 2);
-    }
-
-    step()
-    {
-        this.x += Math.cos(this.angle) * SPEED;
-        this.y -= Math.sin(this.angle) * SPEED;
-
-        if (this.outOfBounds())
-        {
-            this.removed = true;
-        }
-    }
-
-    render(context)
-    {
-        context.fillRect(this.x, this.y, 3, 3);
-    }
-
-    outOfBounds()
-    {
-        if (this.x < 0 || this.y < 0 || this.y > window.innerHeight)
-        {
-            return true;
-        }
-
-        return false;
-    }
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = Star;
-
-
-/***/ }),
-/* 8 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils_TileGenerator__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_TileRenderer__ = __webpack_require__(2);
-
-
-
-class Floor
-{
-    constructor()
-    {
-        this.floorGenerator = new __WEBPACK_IMPORTED_MODULE_0__utils_TileGenerator__["a" /* TileGenerator */](90, 30, 40, 2, 2);
-        this.floorRenderer  = new __WEBPACK_IMPORTED_MODULE_1__utils_TileRenderer__["a" /* TileRenderer */](this.floorGenerator);
-    }
-
-    render(canvasHelper)
-    {
-        canvasHelper.context.fillStyle = canvasHelper.COLOR.FLOOR;
-
-        this.floorRenderer.render(canvasHelper.context);
-    }
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = Floor;
-
-
-/***/ }),
-/* 9 */
+/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -526,6 +753,16 @@ class Controller
         this.addKey(37);
         this.addKey(38);
         this.addKey(39);
+    }
+
+    isMovingLeft()
+    {
+        return this.keys[1].activated;
+    }
+
+    isMovingRight()
+    {
+        return this.keys[3].activated;
     }
 
     addKey(key)
@@ -556,7 +793,7 @@ class Controller
 
 
 /***/ }),
-/* 10 */
+/* 15 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -586,7 +823,7 @@ class Music
 
 
 /***/ }),
-/* 11 */
+/* 16 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -609,7 +846,7 @@ class Socket
             this.handler.onScore(this.io, data);
         }
 
-        if (data.floors)
+        if (data.locations)
         {
             this.handler.onFloor(this.io, data);
         }
@@ -662,24 +899,23 @@ class Socket
 
 
 /***/ }),
-/* 12 */
+/* 17 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__InfoDisplay__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__InfoDisplay__ = __webpack_require__(18);
 
 
-class SocketHandler
+class SocketController
 {
-    constructor(canvasHelper, userRenderer, floorGenerator, nameGenerator, background, pingDisplay)
+    constructor(canvasHelper, userRenderer, environment, nameHelper, pingDisplay)
     {
-        this.canvasHelper   = canvasHelper;
-        this.userRenderer   = userRenderer;
-        this.floorGenerator = floorGenerator;
-        this.nameGenerator  = nameGenerator;
-        this.background     = background;
-        this.pingDisplay    = pingDisplay;
-        this.infoDisplay    = new __WEBPACK_IMPORTED_MODULE_0__InfoDisplay__["a" /* InfoDisplay */]();
+        this.canvasHelper = canvasHelper;
+        this.userRenderer = userRenderer;
+        this.environment  = environment;
+        this.nameHelper   = nameHelper;
+        this.pingDisplay  = pingDisplay;
+        this.infoDisplay  = new __WEBPACK_IMPORTED_MODULE_0__InfoDisplay__["a" /* InfoDisplay */]();
     }
 
     onScore(socket, data)
@@ -690,10 +926,7 @@ class SocketHandler
 
     onFloor(socket, data)
     {
-        this.floorGenerator.tiles  = data.floors;
-        this.floorGenerator.offset = data.offset;
-
-        this.background.tileGenerator.next();
+        this.environment.update(data);
     }
 
     onSyncTick()
@@ -721,16 +954,16 @@ class SocketHandler
 
     onHandshake(socket, data)
     {
-        this.nameGenerator.save(data.name);
+        this.nameHelper.save(data.name);
         this.infoDisplay.name = data.name;
         this.infoDisplay.draw();
     }
 }
-/* harmony export (immutable) */ __webpack_exports__["a"] = SocketHandler;
+/* harmony export (immutable) */ __webpack_exports__["a"] = SocketController;
 
 
 /***/ }),
-/* 13 */
+/* 18 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -804,79 +1037,7 @@ class InfoDisplay
 
 
 /***/ }),
-/* 14 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-const USER_WIDTH      = 30;
-const USER_HEIGHT     = 30;
-const OPPONENTS_ALPHA = 0.6;
-
-class UserRenderer
-{
-    constructor()
-    {
-        this.players = [];
-    }
-
-    update(players)
-    {
-        this.players = players;
-    }
-
-    renderScore(canvasHelper, player)
-    {
-        canvasHelper.context.fillStyle = canvasHelper.COLOR.TEXT;
-        canvasHelper.context.fillText(player.score,
-                                      player.position.x - ((player.score.toString().length / 2) * 14),
-                                      (window.innerHeight - player.position.y) - (USER_HEIGHT + 20));
-    }
-
-    render(canvasHelper)
-    {
-        let alpha = canvasHelper.context.globalAlpha;
-        canvasHelper.context.globalAlpha = OPPONENTS_ALPHA;
-        this.players.forEach(player => {
-            let dx = player.position.x - USER_WIDTH/2;
-            let dy = window.innerHeight - player.position.y;
-
-            canvasHelper.context.fillStyle = canvasHelper.COLOR.USER;
-            canvasHelper.context.font      = '20px Courier';
-
-            if (player.owned)
-            {
-                canvasHelper.context.globalAlpha = alpha;
-            }
-
-            if (player.angle && !player.isJumping)
-            {
-                canvasHelper.context.save();
-                canvasHelper.context.translate(player.position.x, dy);
-                canvasHelper.context.rotate(-player.angle);
-                canvasHelper.context.translate(-player.position.x, -dy);
-                canvasHelper.context.fillRect(dx, dy, USER_WIDTH, -USER_HEIGHT);
-                this.renderScore(canvasHelper, player);
-                canvasHelper.context.restore();
-            }
-            else
-            {
-                canvasHelper.context.fillRect(dx, dy, USER_WIDTH, -USER_HEIGHT);
-                this.renderScore(canvasHelper, player);
-            }
-
-            if (player.owned)
-            {
-                canvasHelper.context.globalAlpha = OPPONENTS_ALPHA;
-            }
-        });
-        canvasHelper.context.globalAlpha = alpha;
-    }
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = UserRenderer;
-
-
-/***/ }),
-/* 15 */
+/* 19 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -936,94 +1097,7 @@ class MessageBox
 
 
 /***/ }),
-/* 16 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-class NameGenerator
-{
-    constructor()
-    {
-        this.generateName();
-    }
-
-    get()
-    {
-        if (localStorage)
-        {
-            let name = localStorage.getItem('name');
-            if (name)
-            {
-                this.name = name;
-                return name;
-            }
-
-            this.save(this.name);
-
-            return this.name;
-        }
-
-        return this.name;
-    }
-
-    save(name)
-    {
-        if (localStorage)
-        {
-            localStorage.setItem('name', name);
-        }
-
-        this.name = name;
-    }
-
-    generateName()
-    {
-        this.name = 'player' + Math.floor(Math.random() * 100000).toString(16);
-
-        return name;
-    }
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = NameGenerator;
-
-
-/***/ }),
-/* 17 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-class FullScreen
-{
-    constructor()
-    {
-        document.body.addEventListener('click', () => this.request());
-    }
-
-    request()
-    {
-        // Supports most browsers and their versions.
-        var requestMethod = document.body.requestFullScreen       ||
-                            document.body.webkitRequestFullScreen ||
-                            document.body.mozRequestFullScreen    ||
-                            document.body.msRequestFullScreen;
-        if (requestMethod)
-        {
-            requestMethod.call(document.body);
-        }
-        else if (typeof window.ActiveXObject !== "undefined")
-        {
-            var wscript = new ActiveXObject("WScript.Shell");
-            if (wscript !== null)
-            {
-                wscript.SendKeys("{F11}");
-            }
-        }
-    }
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = FullScreen;
-
-
-/***/ }),
-/* 18 */
+/* 20 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

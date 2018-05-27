@@ -1,4 +1,4 @@
-export class FullScreen
+export class FullScreenHelper
 {
     constructor()
     {

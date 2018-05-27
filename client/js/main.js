@@ -1,50 +1,48 @@
-import { CanvasHelper }  from "./models/CanvasHelper";
-import { Background }    from "./models/ambient/Background";
-import { Floor }         from "./models/Floor";
-import { Controller }    from "./controllers/Controller";
-import { Music }         from "./models/ambient/Music";
-import { Socket }        from "./models/server/Socket";
-import { SocketHandler } from "./models/server/SocketHandler";
-import { UserRenderer }  from "./models/utils/UserRenderer";
-import { MessageBox }    from "./models/server/Messagebox";
-import { NameGenerator } from "./models/NameGenerator";
-import { FullScreen }    from "./models/ambient/FullScreen";
-import { PingDisplay }   from "./models/utils/PingDisplay";
+import { NameHelper }       from "./models/utils/NameHelper";
+import { FullScreenHelper } from "./models/utils/FullScreenHelper";
+import { Environment }      from "./models/background/Environment";
+import { UserRenderer }     from "./models/UserRenderer";
+import { CanvasHelper }     from "./models/CanvasHelper";
+import { Controller }       from "./controllers/Controller";
+import { Music }            from "./models/effects/Music";
+
+import { Socket }           from "./models/server/Socket";
+import { SocketController } from "./models/server/SocketController";
+import { MessageBox }       from "./models/server/Messagebox";
+import { PingDisplay }      from "./models/server/PingDisplay";
 
 new Music();
-new FullScreen();
+new FullScreenHelper();
 
-let nameGenerator = new NameGenerator();
+let nameHelper    = new NameHelper();
 let canvasHelper  = new CanvasHelper();
 let pingDisplay   = new PingDisplay();
+let controller    = new Controller();
 
-let background    = new Background();
-let floor         = new Floor();
+let environment   = new Environment();
 let userRenderer  = new UserRenderer();
-let socket        = new Socket(new SocketHandler(canvasHelper,
-                                                 userRenderer,
-                                                 floor.floorGenerator,
-                                                 nameGenerator,
-                                                 background,
-                                                 pingDisplay));
+let socket        = new Socket(new SocketController(canvasHelper,
+                                                    userRenderer,
+                                                    environment,
+                                                    nameHelper,
+                                                    pingDisplay));
 
-socket.setController(new Controller());
-canvasHelper.add(background);
-canvasHelper.add(floor);
+socket.setController(controller);
+canvasHelper.add(environment);
 canvasHelper.add(userRenderer);
 canvasHelper.add(pingDisplay);
 
-let name = nameGenerator.get();
+let name = nameHelper.get();
 let connect = () => {
     socket.join(name, () => {
-        new MessageBox(nameGenerator, socket);
+        new MessageBox(nameHelper, socket);
 
         canvasHelper.render();
     }, () => {
         console.error(`Failed to connect with ${name}`);
 
-        nameGenerator.generateName();
-        name = nameGenerator.name;
+        nameHelper.generateName();
+        name = nameHelper.name;
 
         connect();
     });

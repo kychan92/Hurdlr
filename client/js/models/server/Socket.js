@@ -17,7 +17,7 @@ export class Socket
             this.handler.onScore(this.io, data);
         }
 
-        if (data.floors)
+        if (data.locations)
         {
             this.handler.onFloor(this.io, data);
         }

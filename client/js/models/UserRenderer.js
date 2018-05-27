@@ -16,7 +16,7 @@ export class UserRenderer
 
     renderScore(canvasHelper, player)
     {
-        canvasHelper.context.fillStyle = canvasHelper.COLOR.TEXT;
+        canvasHelper.context.fillStyle = canvasHelper.color.TEXT;
         canvasHelper.context.fillText(player.score,
                                       player.position.x - ((player.score.toString().length / 2) * 14),
                                       (window.innerHeight - player.position.y) - (USER_HEIGHT + 20));
@@ -30,7 +30,7 @@ export class UserRenderer
             let dx = player.position.x - USER_WIDTH/2;
             let dy = window.innerHeight - player.position.y;
 
-            canvasHelper.context.fillStyle = canvasHelper.COLOR.USER;
+            canvasHelper.context.fillStyle = canvasHelper.color.USER;
             canvasHelper.context.font      = '20px Courier';
 
             if (player.owned)

@@ -5,7 +5,7 @@ export class Floor
     constructor(minBlockHeight, maxBlockHeight)
     {
         this.blockWidth     = 90;
-        this.blockHeight    = 30;
+        this.blockHeight    = 40;
         this.maxBlocks      = 100;
         this.minBlockHeight = 2;
         this.maxBlockHeight = 9;
@@ -28,7 +28,7 @@ export class Floor
             this.updated = true;
         }
 
-        this.offset += offset;
+        this.offset      += offset;
 
         if (this.offset > this.blockWidth)
         {

@@ -1,4 +1,4 @@
-export class NameGenerator
+export class NameHelper
 {
     constructor()
     {

@@ -261,7 +261,7 @@ class Floor
     constructor(minBlockHeight, maxBlockHeight)
     {
         this.blockWidth     = 90;
-        this.blockHeight    = 30;
+        this.blockHeight    = 40;
         this.maxBlocks      = 100;
         this.minBlockHeight = 2;
         this.maxBlockHeight = 9;
@@ -284,7 +284,7 @@ class Floor
             this.updated = true;
         }
 
-        this.offset += offset;
+        this.offset      += offset;
 
         if (this.offset > this.blockWidth)
         {
@@ -519,8 +519,8 @@ class SocketController
 
         if (this.floor.updated || force)
         {
-            updates.floors = this.floor.locations;
-            updates.offset = this.floor.offset;
+            updates.locations  = this.floor.locations;
+            updates.offset     = this.floor.offset;
             this.floor.updated = false;
         }
 

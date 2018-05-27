@@ -13,6 +13,16 @@ export class Controller
         this.addKey(39);
     }
 
+    isMovingLeft()
+    {
+        return this.keys[1].activated;
+    }
+
+    isMovingRight()
+    {
+        return this.keys[3].activated;
+    }
+
     addKey(key)
     {
         this.keys.push({

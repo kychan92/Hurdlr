@@ -20,9 +20,10 @@ export class Star
         }
     }
 
-    render(context)
+    render(canvasHelper)
     {
-        context.fillRect(this.x, this.y, 3, 3);
+        canvasHelper.context.fillStyle = canvasHelper.color.STARS;
+        canvasHelper.context.fillRect(this.x, this.y, 3, 3);
     }
 
     outOfBounds()

@@ -1,6 +1,6 @@
 export class TileGenerator
 {
-    constructor(blockWidth, blockHeight, maxBlocks, minBlockHeight, maxBlockHeight, noFlats)
+    constructor(blockWidth, blockHeight, maxBlocks, minBlockHeight, maxBlockHeight)
     {
         this.blockWidth     = blockWidth;
         this.blockHeight    = blockHeight;
@@ -8,10 +8,11 @@ export class TileGenerator
         this.angle          = Math.atan2(blockHeight, blockWidth);
         this.minBlockHeight = minBlockHeight;
         this.maxBlockHeight = maxBlockHeight;
-        this.noFlats        = noFlats;
 
-        this.tiles  = [];
-        this.offset = 0;
+        this.locations = [];
+        this.offset    = 0;
+
+        this.populate();
     }
 
     populate()
@@ -24,13 +25,13 @@ export class TileGenerator
 
     generate()
     {
-        let height = (this.tiles.length > 0) ? this.tiles[this.tiles.length - 1] : this.minBlockHeight;
+        let height = (this.locations.length > 0) ? this.locations[this.locations.length - 1] : this.minBlockHeight;
         height    += (Math.random() > .5) ? 1 : -1;
 
-        if (height > this.maxBlockHeight) height = (this.noFlats) ? this.maxBlockHeight - 1 : this.maxBlockHeight;
-        if (height < this.minBlockHeight) height = (this.noFlats) ? this.minBlockHeight + 1 : this.minBlockHeight;
+        if (height > this.maxBlockHeight) height = this.maxBlockHeight - 1;
+        if (height < this.minBlockHeight) height = this.minBlockHeight + 1;
 
-        this.tiles.push(height);
+        this.locations.push(height);
     }
 
     next()
@@ -39,7 +40,7 @@ export class TileGenerator
 
         if (this.offset > this.blockWidth)
         {
-            this.tiles.shift();
+            this.locations.shift();
             this.generate();
             this.offset-=this.blockWidth;
         }

@@ -66,8 +66,8 @@ export class SocketController
 
         if (this.floor.updated || force)
         {
-            updates.floors = this.floor.locations;
-            updates.offset = this.floor.offset;
+            updates.locations  = this.floor.locations;
+            updates.offset     = this.floor.offset;
             this.floor.updated = false;
         }
 
