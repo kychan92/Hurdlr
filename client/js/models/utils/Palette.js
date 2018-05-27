@@ -12,14 +12,6 @@ export class Palette
                 TEXT       : '#FFF'
             },
             {
-                BACKGROUND : '#90a9b7',
-                HILLS      : '#27272788',
-                FLOOR      : '#4e5283',
-                USER       : '#cca7a29a',
-                STARS      : '#d9bbf9',
-                TEXT       : '#FFF'
-            },
-            {
                 BACKGROUND : '#832161',
                 HILLS      : '#da416788',
                 FLOOR      : '#f0eff4',

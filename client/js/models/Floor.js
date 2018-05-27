@@ -1,5 +1,5 @@
 import { TileGenerator } from "./utils/TileGenerator";
-import { TileRenderer } from "./utils/TileRenderer";
+import { TileRenderer }  from "./utils/TileRenderer";
 
 export class Floor
 {

@@ -1,5 +1,3 @@
-import { Tween } from "./../models/utils/Tween";
-
 export class Controller
 {
     constructor()
@@ -9,10 +7,10 @@ export class Controller
         document.body.addEventListener('keydown', (event) => this.onKey(true,  event));
         document.body.addEventListener('keyup',   (event) => this.onKey(false, event));
 
-        this.addKey(37, () => this.onKeyLeft());
-        this.addKey(39, () => this.onKeyRight());
-        this.addKey(38, () => this.onKeyUp());
-        this.addKey(32, () => this.onKeyUp());
+        this.addKey(32);
+        this.addKey(37);
+        this.addKey(38);
+        this.addKey(39);
     }
 
     addKey(key)

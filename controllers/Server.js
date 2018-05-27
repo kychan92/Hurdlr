@@ -11,7 +11,7 @@ export class Server
             {
                 request.url = '/index.html';
             }
-        
+
             fs.readFile('./client' + request.url, (error, data) => {
                 if (error)
                 {
@@ -19,10 +19,20 @@ export class Server
                     response.end(JSON.stringify(error));
                     return;
                 }
-        
+
+                response.setHeader('Content-Type', this.getMimeType(request.url));
                 response.writeHead(200);
                 response.end(data);
             });
         });
+    }
+
+    getMimeType(file)
+    {
+        if (file.endsWith('.css')) return 'text/css';
+        if (file.endsWith('.html')) return 'text/html';
+        if (file.endsWith('.js'))  return 'application/javascript';
+
+        return 'text/plain';
     }
 }

@@ -1,6 +1,5 @@
-const USER_WIDTH  = 30;
-const USER_HEIGHT = 30;
-
+const USER_WIDTH      = 30;
+const USER_HEIGHT     = 30;
 const OPPONENTS_ALPHA = 0.6;
 
 export class UserRenderer

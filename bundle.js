@@ -84,7 +84,7 @@ class ScoreHandler
             let p = this.top5.find(y => y.name == x.name);
             if (p)
             {
-                if (p.score < x.score)
+                if (x.score > p.score)
                 {
                     p.score = x.score;
                 }
@@ -208,7 +208,7 @@ class Server
             {
                 request.url = '/index.html';
             }
-        
+
             __WEBPACK_IMPORTED_MODULE_0_fs___default.a.readFile('./client' + request.url, (error, data) => {
                 if (error)
                 {
@@ -216,11 +216,21 @@ class Server
                     response.end(JSON.stringify(error));
                     return;
                 }
-        
+
+                response.setHeader('Content-Type', this.getMimeType(request.url));
                 response.writeHead(200);
                 response.end(data);
             });
         });
+    }
+
+    getMimeType(file)
+    {
+        if (file.endsWith('.css')) return 'text/css';
+        if (file.endsWith('.html')) return 'text/html';
+        if (file.endsWith('.js'))  return 'application/javascript';
+
+        return 'text/plain';
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Server;

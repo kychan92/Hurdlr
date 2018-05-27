@@ -1,6 +1,6 @@
 import { ScoreHandler } from './ScoreHandler';
-import { User } from './User';
-import { TickHandler } from './TickHandler';
+import { User }         from './User';
+import { TickHandler }  from './TickHandler';
 
 export class PlayerManager
 {
