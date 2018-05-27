@@ -138,6 +138,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__models_server_SocketController__ = __webpack_require__(17);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__models_server_Messagebox__ = __webpack_require__(19);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__models_server_PingDisplay__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__models_effects_Music2__ = __webpack_require__(21);
 
 
 
@@ -151,7 +152,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
-new __WEBPACK_IMPORTED_MODULE_6__models_effects_Music__["a" /* Music */]();
+
+new __WEBPACK_IMPORTED_MODULE_11__models_effects_Music2__["a" /* Music2 */]();
 new __WEBPACK_IMPORTED_MODULE_1__models_utils_FullScreenHelper__["a" /* FullScreenHelper */]();
 
 let nameHelper    = new __WEBPACK_IMPORTED_MODULE_0__models_utils_NameHelper__["a" /* NameHelper */]();
@@ -846,7 +848,7 @@ class Music
         //this.audio.play();
     }
 }
-/* harmony export (immutable) */ __webpack_exports__["a"] = Music;
+/* unused harmony export Music */
 
 
 /***/ }),
@@ -1156,6 +1158,70 @@ class PingDisplay
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = PingDisplay;
+
+
+/***/ }),
+/* 21 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+class Music2
+{
+    constructor()
+    {
+        this.audioContext    = new (AudioContext || webkitAudioContext)();
+        this.gain            = this.audioContext.createGain();
+        this.gain.gain.value = 0.1;
+        this.gain.connect(this.audioContext.destination);
+
+        this.notes = [
+            this.createOscillator(261.6),
+            this.createOscillator(293.7),
+            this.createOscillator(329.6),
+            this.createOscillator(349.2),
+            this.createOscillator(392),
+            this.createOscillator(440),
+            this.createOscillator(493.9),
+            this.createOscillator(523.3),
+            this.createOscillator(587.3)
+        ];
+
+        this.current = 0;
+        this.start   = 0;
+
+        setInterval(() => this.tick(), 800);
+    }
+
+    getNote()
+    {
+        return this.notes[ this.start + (this.current*2) ];
+    }
+
+    tick()
+    {
+        this.notes.forEach(x => x.disconnect());
+
+        if (this.current == 4)
+        {
+            this.start   = Math.floor(Math.random() * 3);
+            this.current = 0;
+        }
+
+        this.getNote().connect(this.gain);
+        this.current++;
+    }
+
+    createOscillator(frequency)
+    {
+        let osc = this.audioContext.createOscillator();
+        osc.frequency.value = frequency;
+        osc.type = 'triangle';
+        osc.start(0);
+
+        return osc;
+    };
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = Music2;
 
 
 /***/ })

@@ -10,8 +10,9 @@ import { Socket }           from "./models/server/Socket";
 import { SocketController } from "./models/server/SocketController";
 import { MessageBox }       from "./models/server/Messagebox";
 import { PingDisplay }      from "./models/server/PingDisplay";
+import { Music2 } from "./models/effects/Music2";
 
-new Music();
+new Music2();
 new FullScreenHelper();
 
 let nameHelper    = new NameHelper();
