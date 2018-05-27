@@ -637,11 +637,11 @@ const HILL_SPEED = 3;
 const SPEED      = 6;
 const RAMP_SPEED = 13;
 
-const MAX_SPEED     = 50;
+const MAX_SPEED     = 70;
 const JUMP_SPEED    = 20;
 const JUMP_TICKS    = 20;
 const GRAVITY_SPEED = 12;
-const TWEEN_SPEED   = 0.05;
+const TWEEN_SPEED   = 0.04;
 
 class User
 {

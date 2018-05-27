@@ -49,8 +49,7 @@ export class CanvasHelper
 
     render()
     {
-        this.context.fillStyle = this.color.BACKGROUND;
-        this.context.fillRect(0, 0, window.innerWidth, window.innerHeight);
+        this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
         this.items.forEach((x, i) => {
             if (x.removed)

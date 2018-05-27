@@ -342,22 +342,22 @@ class Terrain
     {
         this.offset = 0;
         this.hills  = [
-            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](255, 100, 50, 6, 9, 50),
-            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](205, 90, 50, 5, 8, 50),
-            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](135, 80, 50, 4, 8, 50),
+            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](300, 200, 50, 2, 4, 50),
+            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](240, 190, 50, 3, 4, 50),
+            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](175, 180, 50, 3, 4, 50),
 
-            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](235, 100, 50, 4, 7, 50),
-            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](175, 105, 50, 3, 6, 50),
-            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](105, 90, 50, 3, 6, 50),
+            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](290, 165, 50, 2, 4, 50),
+            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](230, 165, 50, 3, 4, 50),
+            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](125, 140, 50, 3, 4, 50),
 
-            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](215, 100, 50, 3, 6, 50),
-            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](165, 90, 50, 3, 5, 50),
-            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](145, 105, 50, 3, 5, 50),
+            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](235, 145, 50, 3, 4, 50),
+            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](350, 130, 50, 3, 4, 50),
+            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](190, 160, 50, 2, 4, 50),
 
-            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](255, 100, 50, 3, 5, 50),
+            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](255, 120, 50, 3, 5, 50),
             new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](205, 120, 50, 3, 4, 50),
 
-            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](245, 80, 50, 3, 5, 50)
+            new __WEBPACK_IMPORTED_MODULE_0__TileGenerator__["a" /* TileGenerator */](245, 100, 50, 3, 4, 50)
         ];
 
         this.renderer = new __WEBPACK_IMPORTED_MODULE_1__TileRenderer__["a" /* TileRenderer */]();
@@ -370,25 +370,38 @@ class Terrain
         });
     }
 
+    createGradient(canvasHelper, color, strength)
+    {
+        let gradient = canvasHelper.context.createLinearGradient(window.innerWidth / 2,
+                                                                 0,
+                                                                 0,
+                                                                 window.innerHeight);
+
+        gradient.addColorStop(strength, color);
+        gradient.addColorStop(1, "#FFFFFF");
+
+        return gradient;
+    }
+
     render(canvasHelper)
     {
         canvasHelper.context.filter = 'blur(2px)';
-        canvasHelper.context.fillStyle = canvasHelper.color.HILLS_FAR;
+        canvasHelper.context.fillStyle = this.createGradient(canvasHelper, canvasHelper.color.HILLS_FAR, 0.15);
         this.renderer.render(canvasHelper, this.hills[0]);
         this.renderer.render(canvasHelper, this.hills[1]);
         this.renderer.render(canvasHelper, this.hills[2]);
 
-        canvasHelper.context.fillStyle = canvasHelper.color.HILLS_FAR_NEAR;
+        canvasHelper.context.fillStyle = this.createGradient(canvasHelper, canvasHelper.color.HILLS_FAR_NEAR, 0.25);
         this.renderer.render(canvasHelper, this.hills[3]);
         this.renderer.render(canvasHelper, this.hills[4]);
         this.renderer.render(canvasHelper, this.hills[5]);
 
-        canvasHelper.context.fillStyle = canvasHelper.color.HILLS_NEAR;
+        canvasHelper.context.fillStyle = this.createGradient(canvasHelper, canvasHelper.color.HILLS_NEAR, 0.4);
         this.renderer.render(canvasHelper, this.hills[6]);
         this.renderer.render(canvasHelper, this.hills[7]);
         this.renderer.render(canvasHelper, this.hills[8]);
 
-        canvasHelper.context.fillStyle = canvasHelper.color.HILLS_NEAR_CLOSE;
+        canvasHelper.context.fillStyle = this.createGradient(canvasHelper, canvasHelper.color.HILLS_NEAR_CLOSE, 0.65);
         this.renderer.render(canvasHelper, this.hills[9]);
         this.renderer.render(canvasHelper, this.hills[10]);
 
@@ -698,8 +711,7 @@ class CanvasHelper
 
     render()
     {
-        this.context.fillStyle = this.color.BACKGROUND;
-        this.context.fillRect(0, 0, window.innerWidth, window.innerHeight);
+        this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
         this.items.forEach((x, i) => {
             if (x.removed)
@@ -729,14 +741,14 @@ class PaletteHelper
     {
         this.BACKGROUND       = '#FDDAC6',
         this.FLOOR            = '#2C0A2D',
-        this.USER             = '#FFFFFFEE',
+        this.USER             = '#FFFFFFEF',
         this.STARS            = '#FFFFFF99',
         this.TEXT             = '#FFFFFF99',
-        this.HILLS_FAR        = '#F97C5DCC',
-        this.HILLS_FAR_NEAR   = '#F55E43EE',
-        this.HILLS_NEAR       = '#F3463FF0',
-        this.HILLS_NEAR_CLOSE = '#BD1642F5',
-        this.HILLS_CLOSE      = '#760135FA'
+        this.HILLS_FAR        = '#F97C5D',
+        this.HILLS_FAR_NEAR   = '#F55E43',
+        this.HILLS_NEAR       = '#F3463F',
+        this.HILLS_NEAR_CLOSE = '#BD1642',
+        this.HILLS_CLOSE      = '#760135'
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = PaletteHelper;

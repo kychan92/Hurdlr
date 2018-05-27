@@ -1,10 +1,11 @@
 html, body
 {
-    margin      : 0;
-    padding     : 0;
-    overflow    : hidden;
-    font-family : Verdana, Geneva, Tahoma, sans-serif;
-    cursor      : pointer;
+    margin           : 0;
+    padding          : 0;
+    overflow         : hidden;
+    font-family      : Verdana, Geneva, Tahoma, sans-serif;
+    cursor           : pointer;
+    background-color : #FDDAC6;
 }
 
 #server-display
